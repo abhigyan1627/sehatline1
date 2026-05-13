@@ -21,6 +21,7 @@ const server = http.createServer(app);
 const port = process.env.PORT || 5000;
 const allowedOrigins = [
   'https://sehatline1.vercel.app',
+  'https://sehatline1.onrender.com',
   process.env.FRONTEND_ORIGIN,
   'http://localhost:3000',
   'http://localhost:3001',
