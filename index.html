@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SehatLine is a smart healthcare platform for doctor appointments, live queues, medicines, lab tests, and digital health records." />
+  <title>SehatLine - Healthcare Made Smarter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header" id="top">
+    <nav class="navbar">
+      <a class="logo" href="#top" aria-label="SehatLine home">
+        <span class="logo-mark">S</span>
+        <span>SehatLine</span>
+      </a>
+
+      <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div class="nav-menu">
+        <a href="#top">Home</a>
+        <a href="#doctors">Find Doctors</a>
+        <a href="#smartqueue">SmartQueue AI</a>
+        <a href="#medicines">Medicines</a>
+        <a href="#labs">Lab Tests</a>
+        <a class="login-link" href="#login">Login</a>
+        <a class="btn btn-small" href="#signup">Signup</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero section-pad">
+      <div class="hero-grid container">
+        <div class="hero-content reveal">
+          <div class="eyebrow"><span></span> Built for India's next-gen healthcare cities</div>
+          <h1>Healthcare Made Smarter For Your City</h1>
+          <p>Book doctors, track live queues, get emergency delay alerts, order medicines, and book lab tests — all in one smart healthcare platform.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#appointment">Book Appointment</a>
+            <a class="btn btn-secondary" href="#smartqueue">Track Queue</a>
+          </div>
+          <div class="hero-stats glass-card">
+            <div><strong>18k+</strong><span>Appointments</span></div>
+            <div><strong>4.9/5</strong><span>Patient rating</span></div>
+            <div><strong>35%</strong><span>Less waiting</span></div>
+          </div>
+        </div>
+
+        <div class="hero-visual reveal">
+          <div class="orb orb-one"></div>
+          <div class="orb orb-two"></div>
+          <div class="doctor-panel glass-card">
+            <div class="image-placeholder hero-image">
+              <span>Healthcare Image</span>
+            </div>
+            <div class="live-card glass-card">
+              <span class="pulse-dot"></span>
+              <div>
+                <strong>Live Queue Active</strong>
+                <small>Token A-24 is consulting now</small>
+              </div>
+            </div>
+            <div class="mini-card glass-card">
+              <strong>AI ETA</strong>
+              <span>22 min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="appointment-search container reveal" id="appointment">
+      <div class="search-card glass-card">
+        <div class="section-intro compact">
+          <span class="tag">Instant booking</span>
+          <h2>Find the right care near you</h2>
+        </div>
+        <form class="search-form">
+          <label>
+            <span>State</span>
+            <select id="stateSelect" aria-label="Select state">
+              <option value="Bihar">Bihar</option>
+              <option value="Uttarakhand">Uttarakhand</option>
+              <option value="Gujarat">Gujarat</option>
+            </select>
+          </label>
+          <label class="city-field">
+            <span>City</span>
+            <select id="citySelect" aria-label="Select city">
+              <option>Patna</option>
+              <option>Gaya</option>
+              <option>Muzaffarpur</option>
+              <option>Siwan</option>
+              <option>Chhapra</option>
+              <option>Gopalganj</option>
+            </select>
+          </label>
+          <label>
+            <span>Doctor or Specialist</span>
+            <input type="search" placeholder="Cardiologist, dentist, Dr. Sharma" />
+          </label>
+          <label>
+            <span>Date</span>
+            <input type="date" />
+          </label>
+          <button class="btn btn-primary" type="submit">Search</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="features section-pad" id="medicines">
+      <div class="container">
+        <div class="section-intro reveal">
+          <span class="tag">SehatLine ecosystem</span>
+          <h2>Everything patients need in one premium healthcare OS</h2>
+          <p>From discovery to diagnosis, SehatLine removes friction across your care journey.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card glass-card reveal"><div class="icon">🩺</div><h3>Doctor Appointment Booking</h3><p>Compare doctors, slots, ratings, and book verified appointments in seconds.</p></article>
+          <article class="feature-card glass-card reveal"><div class="icon">🤖</div><h3>SmartQueue AI</h3><p>Track tokens live with intelligent ETA predictions and delay transparency.</p></article>
+          <article class="feature-card glass-card reveal"><div class="icon">🚨</div><h3>Emergency Delay Alerts</h3><p>Get instant updates when a doctor is handling emergency care or running late.</p></article>
+          <article class="feature-card glass-card reveal"><div class="icon">💊</div><h3>Medicine Delivery</h3><p>Order prescriptions and wellness essentials from trusted local pharmacies.</p></article>
+          <article class="feature-card glass-card reveal" id="labs"><div class="icon">🧪</div><h3>Lab Test Booking</h3><p>Book diagnostics, home sample pickup, and reports from NABL-quality partners.</p></article>
+          <article class="feature-card glass-card reveal"><div class="icon">📁</div><h3>Digital Health Records</h3><p>Securely access prescriptions, reports, visit history, and family records.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="smartqueue section-pad" id="smartqueue">
+      <div class="container smartqueue-grid">
+        <div class="section-intro left reveal">
+          <span class="tag">SmartQueue AI</span>
+          <h2>No more waiting rooms without answers</h2>
+          <p>SehatLine keeps patients informed with live token tracking, estimated waiting time, emergency notifications, real-time queue updates, and one-tap reschedule options.</p>
+          <div class="live-token-card glass-card">
+            <div class="token-card-header">
+              <span class="pulse-dot"></span>
+              <strong>Live token tracking</strong>
+              <small>Auto-updates every 10 seconds</small>
+            </div>
+            <div class="token-metrics">
+              <div><span>Current Token</span><strong id="currentToken">A-24</strong></div>
+              <div><span>Your Token</span><strong id="yourToken">A-31</strong></div>
+              <div><span>Queue Position</span><strong id="queuePosition">7</strong></div>
+              <div><span>Waiting Time</span><strong><b id="waitTime">28</b> min</strong></div>
+            </div>
+            <div class="doctor-status">
+              <span>Doctor status</span>
+              <strong id="doctorStatus">Consulting patient</strong>
+            </div>
+          </div>
+          <div class="queue-list">
+            <span>Live token tracking</span>
+            <span>Estimated waiting time</span>
+            <span>Doctor emergency notifications</span>
+            <span>Real-time queue updates</span>
+            <span>Reschedule option</span>
+          </div>
+        </div>
+        <div class="dashboard-card glass-card reveal">
+          <div class="dashboard-top">
+            <div><strong>Dr. Meera Rao</strong><span>Dermatology OPD</span></div>
+            <span class="status-pill">Live</span>
+          </div>
+          <div class="token-focus">
+            <span>Current Token</span>
+            <strong id="dashboardToken">A-24</strong>
+            <small id="dashboardEta">Your token A-31 · ETA 4:15 PM</small>
+          </div>
+          <div class="analytics-grid">
+            <div><span>Active patients</span><strong id="activePatients">18</strong></div>
+            <div><span>Completed</span><strong id="completedConsults">42</strong></div>
+          </div>
+          <div class="queue-bars">
+            <div><span>Live queue analytics</span><i id="analyticsBar" style="--w: 82%"></i></div>
+            <div><span>Waiting prediction</span><i id="predictionBar" style="--w: 64%"></i></div>
+            <div><span>Consultation flow</span><i id="flowBar" style="--w: 48%"></i></div>
+          </div>
+          <button class="btn btn-secondary" type="button">Reschedule Visit</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="doctors section-pad" id="doctors">
+      <div class="container">
+        <div class="section-intro reveal">
+          <span class="tag">Top doctors</span>
+          <h2>Trusted specialists available today</h2>
+          <p>Premium care from verified doctors across leading Indian clinics and hospitals.</p>
+        </div>
+        <div class="doctor-grid">
+          <article class="doctor-card glass-card reveal"><div class="image-placeholder doctor-photo">Photo</div><span class="badge">Available today</span><h3>Dr. Aarav Sharma</h3><p>Cardiologist</p><div class="doctor-meta"><span>⭐ 4.9</span><span>14 yrs exp</span></div><button class="btn btn-primary" type="button">Book Appointment</button></article>
+          <article class="doctor-card glass-card reveal"><div class="image-placeholder doctor-photo">Photo</div><span class="badge">Available today</span><h3>Dr. Meera Rao</h3><p>Dermatologist</p><div class="doctor-meta"><span>⭐ 4.8</span><span>11 yrs exp</span></div><button class="btn btn-primary" type="button">Book Appointment</button></article>
+          <article class="doctor-card glass-card reveal"><div class="image-placeholder doctor-photo">Photo</div><span class="badge">Available today</span><h3>Dr. Kabir Menon</h3><p>Orthopedic Surgeon</p><div class="doctor-meta"><span>⭐ 4.9</span><span>16 yrs exp</span></div><button class="btn btn-primary" type="button">Book Appointment</button></article>
+          <article class="doctor-card glass-card reveal"><div class="image-placeholder doctor-photo">Photo</div><span class="badge">Available today</span><h3>Dr. Nisha Kapoor</h3><p>Pediatrician</p><div class="doctor-meta"><span>⭐ 4.7</span><span>9 yrs exp</span></div><button class="btn btn-primary" type="button">Book Appointment</button></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="notification-demo container reveal">
+      <div class="notification-card glass-card inline-alert">
+        <div class="notification-icon">!</div>
+        <p><strong>Dr. Sharma has an emergency case.</strong> Your appointment is delayed by 35 minutes. New estimated time: <strong>4:15 PM.</strong></p>
+      </div>
+    </section>
+
+    <div class="floating-alert glass-card" id="floatingAlert" role="status" aria-live="polite">
+      <button class="alert-close" type="button" aria-label="Close emergency alert">×</button>
+      <div class="notification-icon">!</div>
+      <div>
+        <strong>Dr. Sharma has an emergency case.</strong>
+        <p>Appointments delayed by 25 minutes. New estimated time: <strong>4:15 PM.</strong></p>
+      </div>
+    </div>
+
+    <section class="how section-pad">
+      <div class="container">
+        <div class="section-intro reveal">
+          <span class="tag">How it works</span>
+          <h2>Book smarter in four simple steps</h2>
+        </div>
+        <div class="steps">
+          <div class="step glass-card reveal"><span>01</span><h3>Find Doctor</h3></div>
+          <div class="step glass-card reveal"><span>02</span><h3>Book Appointment</h3></div>
+          <div class="step glass-card reveal"><span>03</span><h3>Get Smart Token</h3></div>
+          <div class="step glass-card reveal"><span>04</span><h3>Track Queue Live</h3></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="testimonials section-pad">
+      <div class="container">
+        <div class="section-intro reveal">
+          <span class="tag">Patient love</span>
+          <h2>Built for families, professionals, and hospitals</h2>
+        </div>
+        <div class="testimonial-grid">
+          <article class="testimonial-card glass-card reveal"><p>“I reached exactly when my token was close. SehatLine saved me almost an hour at the clinic.”</p><strong>Priya S.</strong><span>Bengaluru</span></article>
+          <article class="testimonial-card glass-card reveal"><p>“The emergency delay alert felt incredibly premium. No confusion, no repeated calls to reception.”</p><strong>Rohan M.</strong><span>Mumbai</span></article>
+          <article class="testimonial-card glass-card reveal"><p>“Appointments, lab tests, and prescriptions in one place makes this perfect for my parents.”</p><strong>Ananya K.</strong><span>Delhi NCR</span></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="logo" href="#top"><span class="logo-mark">S</span><span>SehatLine</span></a>
+        <p>India's smart healthcare access layer for appointments, queues, medicines, diagnostics, and records.</p>
+      </div>
+      <div><h4>About</h4><a href="#top">Company</a><a href="#smartqueue">SmartQueue AI</a><a href="#doctors">Doctors</a></div>
+      <div><h4>Quick links</h4><a href="#appointment">Book appointment</a><a href="#labs">Lab tests</a><a href="#medicines">Medicines</a></div>
+      <div><h4>Contact</h4><a href="mailto:hello@sehatline.in">hello@sehatline.in</a><a href="tel:+919876543210">+91 98765 43210</a><div class="socials"><a href="#">LinkedIn</a><a href="#">Instagram</a><a href="#">X</a></div></div>
+    </div>
+    <div class="copyright">© 2026 SehatLine. All rights reserved.</div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

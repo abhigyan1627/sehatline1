@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SehatLine – Patient Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="chatbot.css" />
+</head>
+<body>
+
+<div class="dash-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="dash-sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <span class="logo-mark" style="background:var(--primary);color:white;border-radius:10px;width:30px;height:30px;display:grid;place-items:center;font-weight:900;">S</span>
+      SehatLine
+    </a>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item active" data-section="overview" href="#">
+        <span class="icon">🏠</span> Overview
+      </a>
+      <a class="nav-item" data-section="book" href="#">
+        <span class="icon">📅</span> Book Appointment
+      </a>
+      <a class="nav-item" data-section="appointments" href="#">
+        <span class="icon">📋</span> My Appointments
+      </a>
+      <a class="nav-item" data-section="queue" href="#">
+        <span class="icon">🔢</span> Live Queue
+      </a>
+      <a class="nav-item" data-section="notifications" href="#">
+        <span class="icon">🔔</span> Notifications
+        <span id="notifBadge" style="display:none;background:var(--primary);color:white;border-radius:999px;font-size:0.7rem;padding:1px 7px;margin-left:auto;"></span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="avatar" id="sidebarAvatar">P</div>
+        <div class="user-chip-info">
+          <strong id="sidebarName">Loading…</strong>
+          <span>Patient</span>
+        </div>
+      </div>
+      <button class="nav-item" style="margin-top:8px;color:#dc2626;" onclick="SL.logout()">
+        <span class="icon">🚪</span> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="dash-main">
+    <header class="dash-header">
+      <h1 id="sectionTitle">Overview</h1>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span id="headerUserName" style="font-weight:700;color:var(--muted);font-size:0.9rem;"></span>
+        <button class="btn btn-sm btn-danger" onclick="SL.logout()">Logout</button>
+      </div>
+    </header>
+
+    <div class="dash-content">
+
+      <!-- ── Overview ── -->
+      <section id="sec-overview">
+        <p id="welcomeMsg" style="font-size:1.1rem;font-weight:800;color:var(--ink);margin-bottom:20px;"></p>
+
+        <div class="stats-grid" style="margin-bottom:24px;">
+          <div class="stat-card">
+            <div class="stat-val" id="stat-total">–</div>
+            <div class="stat-label">Total Appointments</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="stat-upcoming">–</div>
+            <div class="stat-label">Upcoming</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="stat-token">–</div>
+            <div class="stat-label">My Token</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="stat-wait">–</div>
+            <div class="stat-label">Wait (min)</div>
+          </div>
+        </div>
+
+        <!-- Live token card -->
+        <div class="dash-card" id="liveTokenCard" style="display:none;margin-bottom:20px;border:2px solid var(--primary);">
+          <h2>🔢 Your Live Queue Token</h2>
+          <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;">
+            <div style="text-align:center;">
+              <div style="font-size:3rem;font-weight:900;color:var(--primary);" id="liveToken">–</div>
+              <div style="font-size:0.78rem;color:var(--muted);font-weight:700;">Your Token</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:2rem;font-weight:900;color:var(--secondary);" id="liveCurrentToken">–</div>
+              <div style="font-size:0.78rem;color:var(--muted);font-weight:700;">Now Serving</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:2rem;font-weight:900;color:#f59e0b;" id="liveWait">–</div>
+              <div style="font-size:0.78rem;color:var(--muted);font-weight:700;">Est. Wait (min)</div>
+            </div>
+            <div>
+              <span id="liveStatusPill" class="status-pill pill-waiting">Waiting</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification alerts from socket -->
+        <div id="alertBanner" style="display:none;" class="dash-card" style="border-left:4px solid #f59e0b;">
+          <span id="alertBannerMsg"></span>
+        </div>
+      </section>
+
+      <!-- ── Book Appointment ── -->
+      <section id="sec-book" style="display:none;">
+
+        <!-- Demo notice -->
+        <div style="margin-bottom:14px;padding:12px 18px;border-radius:14px;background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;font-size:0.86rem;">
+          <strong>🔬 Demo Mode:</strong> Showing demo doctor profiles. Real verified doctors will be added after onboarding.
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+          <!-- Filter + form -->
+          <div class="dash-card">
+            <h2>📅 Book an Appointment</h2>
+            <form id="bookingForm" class="form-grid" style="grid-template-columns:1fr;">
+              <div class="form-field">
+                <label for="bk_state">State</label>
+                <select id="bk_state">
+                  <option value="">All States</option>
+                  <option>Bihar</option>
+                  <option>Uttarakhand</option>
+                  <option>Gujarat</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="bk_city">City</label>
+                <select id="bk_city"><option value="">All Cities</option></select>
+              </div>
+              <div class="form-field">
+                <label for="bk_spec">Specialization</label>
+                <select id="bk_spec">
+                  <option value="">All Specializations</option>
+                  <option>General Physician</option>
+                  <option>Dentist</option>
+                  <option>Orthopedic</option>
+                  <option>Cardiologist</option>
+                  <option>Pediatrician</option>
+                  <option>Gynecologist</option>
+                  <option>Dermatologist</option>
+                  <option>ENT</option>
+                  <option>Eye Specialist</option>
+                  <option>Neurologist</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="bk_doctor">Select Doctor</label>
+                <select id="bk_doctor"><option value="">Loading doctors…</option></select>
+              </div>
+              <div class="form-field">
+                <label for="bk_date">Preferred Date</label>
+                <input id="bk_date" type="date" required />
+              </div>
+              <div class="form-field">
+                <label for="bk_time">Preferred Time</label>
+                <input id="bk_time" type="time" required />
+              </div>
+              <div class="form-field">
+                <label for="bk_symptoms">Symptoms</label>
+                <textarea id="bk_symptoms" rows="3" placeholder="Briefly describe your symptoms…"></textarea>
+              </div>
+              <div id="bookingError" class="form-error" style="display:none;"></div>
+              <button class="btn btn-primary btn-full" type="submit" id="bookBtn">Book Appointment</button>
+            </form>
+          </div>
+
+          <!-- Doctor info panel -->
+          <div>
+            <div class="dash-card" id="doctorInfoCard" style="display:none;">
+              <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:14px;">
+                <img id="docImg" src="" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid var(--border);" />
+                <div style="flex:1;">
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <strong id="docName" style="font-size:1.1rem;"></strong>
+                    <span style="background:rgba(245,158,11,0.15);color:#b45309;font-size:0.72rem;font-weight:800;padding:3px 9px;border-radius:999px;">Demo Profile</span>
+                  </div>
+                  <div id="docSpec" style="color:var(--primary);font-weight:700;font-size:0.87rem;margin-top:2px;"></div>
+                  <div id="docClinic" style="color:var(--muted);font-size:0.82rem;margin-top:2px;"></div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
+                <div class="stat-card"><div class="stat-val" id="docFee" style="font-size:1.2rem;">–</div><div class="stat-label">Fee (₹)</div></div>
+                <div class="stat-card"><div class="stat-val" id="docExp" style="font-size:1.2rem;">–</div><div class="stat-label">Exp (yrs)</div></div>
+                <div class="stat-card"><div class="stat-val" id="docRating" style="font-size:1.2rem;">–</div><div class="stat-label">Rating ⭐</div></div>
+              </div>
+              <div id="docAvailBadge" style="font-size:0.82rem;font-weight:700;"></div>
+              <p style="margin-top:10px;font-size:0.78rem;color:var(--muted);border-top:1px solid var(--border);padding-top:10px;">Real verified doctors will be added after onboarding. This is a demo profile for testing.</p>
+            </div>
+
+            <!-- Doctor list cards -->
+            <div id="doctorCardsList" style="display:flex;flex-direction:column;gap:10px;margin-top:0;"></div>
+          </div>
+
+        </div>
+
+        <!-- Booking confirmation -->
+        <div id="bookingConfirm" style="display:none;margin-top:20px;padding:20px;border-radius:16px;background:rgba(53,201,159,0.1);border:2px solid var(--secondary);">
+          <h3 style="color:#087a5e;margin-bottom:12px;">✅ Appointment Confirmed!</h3>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+            <div class="stat-card"><div class="stat-val" id="conf-token" style="font-size:1.5rem;">–</div><div class="stat-label">Your Token</div></div>
+            <div class="stat-card"><div class="stat-val" id="conf-position" style="font-size:1.5rem;">–</div><div class="stat-label">Queue Position</div></div>
+            <div class="stat-card"><div class="stat-val" id="conf-wait" style="font-size:1.5rem;">–</div><div class="stat-label">Est. Wait (min)</div></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── My Appointments ── -->
+      <section id="sec-appointments" style="display:none;">
+        <div class="dash-card">
+          <h2>📋 My Appointments</h2>
+          <div id="appointmentsList" class="queue-list">
+            <div class="empty-box"><div class="icon">📭</div><p>Loading appointments…</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Live Queue ── -->
+      <section id="sec-queue" style="display:none;">
+        <div class="dash-card">
+          <h2>🔢 Live Queue Status</h2>
+          <div id="queueStatusBox" class="empty-box"><div class="icon">⏳</div><p>Fetching your queue status…</p></div>
+        </div>
+      </section>
+
+      <!-- ── Notifications ── -->
+      <section id="sec-notifications" style="display:none;">
+        <div class="dash-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h2 style="margin:0;">🔔 Notifications</h2>
+            <button class="btn btn-sm btn-secondary" id="markAllReadBtn">Mark all read</button>
+          </div>
+          <div id="notificationsList" class="notif-list">
+            <div class="empty-box"><div class="icon">🔔</div><p>No notifications yet.</p></div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /dash-content -->
+  </div><!-- /dash-main -->
+</div><!-- /dash-layout -->
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="auth.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+  // ── Auth guard ──
+  const user = SL.requireAuth(['patient']);
+  if (!user) throw new Error('Redirecting');
+
+  document.querySelector('#sidebarName').textContent = user.name;
+  document.querySelector('#sidebarAvatar').textContent = user.name[0].toUpperCase();
+  document.querySelector('#headerUserName').textContent = user.name;
+  document.querySelector('#welcomeMsg').textContent = `Welcome back, ${user.name} 👋`;
+
+  // ── Toast helper ──
+  const toast = (msg, type = '') => {
+    const c = document.querySelector('#toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  };
+
+  // ── Section navigation ──
+  const sections = ['overview', 'book', 'appointments', 'queue', 'notifications'];
+  const showSection = (name) => {
+    sections.forEach(s => {
+      document.querySelector(`#sec-${s}`).style.display = s === name ? '' : 'none';
+    });
+    document.querySelector('#sectionTitle').textContent =
+      name.charAt(0).toUpperCase() + name.slice(1).replace('-', ' ');
+    document.querySelectorAll('.nav-item[data-section]').forEach(el => {
+      el.classList.toggle('active', el.dataset.section === name);
+    });
+  };
+
+  document.querySelectorAll('.nav-item[data-section]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      showSection(el.dataset.section);
+      if (el.dataset.section === 'appointments') loadAppointments();
+      if (el.dataset.section === 'queue') loadQueueStatus();
+      if (el.dataset.section === 'notifications') loadNotifications();
+      if (el.dataset.section === 'book') loadDoctors();
+    });
+  });
+
+  // ── City map (demo cities) ──
+  const CITIES = {
+    Bihar: ['Patna', 'Siwan'],
+    Uttarakhand: ['Dehradun', 'Haldwani'],
+    Gujarat: ['Ahmedabad']
+  };
+
+  // Cache of loaded doctors for the info panel
+  let _allDoctors = [];
+
+  document.querySelector('#bk_state').addEventListener('change', function() {
+    const cities = CITIES[this.value] || [];
+    const sel = document.querySelector('#bk_city');
+    sel.innerHTML = `<option value="">All Cities</option>` + cities.map(c => `<option>${c}</option>`).join('');
+    loadDoctors();
+  });
+
+  document.querySelector('#bk_city').addEventListener('change', loadDoctors);
+  document.querySelector('#bk_spec').addEventListener('change', loadDoctors);
+
+  document.querySelector('#bk_doctor').addEventListener('change', function() {
+    const doc = _allDoctors.find(d => d._id === this.value);
+    showDoctorInfo(doc);
+  });
+
+  // Set min date to today
+  document.querySelector('#bk_date').min = new Date().toISOString().split('T')[0];
+
+  function showDoctorInfo(doc) {
+    const card = document.querySelector('#doctorInfoCard');
+    if (!doc) { card.style.display = 'none'; return; }
+    card.style.display = 'block';
+    document.querySelector('#docImg').src = doc.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(doc.displayName)}&background=0f6fff&color=fff&size=128`;
+    document.querySelector('#docName').textContent = doc.displayName;
+    document.querySelector('#docSpec').textContent = doc.speciality;
+    document.querySelector('#docClinic').textContent = `${doc.clinicName} · ${doc.city}, ${doc.state}`;
+    document.querySelector('#docFee').textContent = doc.consultationFee;
+    document.querySelector('#docExp').textContent = doc.experienceYears;
+    document.querySelector('#docRating').textContent = doc.rating;
+    const avail = doc.availableToday;
+    document.querySelector('#docAvailBadge').innerHTML = avail
+      ? `<span style="color:#087a5e;">✅ Available Today</span>`
+      : `<span style="color:#b45309;">⚠️ Not available today</span>`;
+  }
+
+  function renderDoctorCards(doctors) {
+    const list = document.querySelector('#doctorCardsList');
+    if (!doctors.length) { list.innerHTML = ''; return; }
+    list.innerHTML = doctors.slice(0, 6).map(d => `
+      <div class="queue-item" style="cursor:pointer;" onclick="selectDoctor('${d._id}')">
+        <img src="${d.profileImage || ''}" alt="" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--border);" onerror="this.style.display='none'" />
+        <div class="queue-item-info">
+          <strong>${d.displayName}</strong>
+          <span>${d.speciality} · ${d.city} · ₹${d.consultationFee} · ${d.experienceYears}y exp</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+          <span style="background:rgba(245,158,11,0.15);color:#b45309;font-size:0.68rem;font-weight:800;padding:2px 7px;border-radius:999px;">Demo</span>
+          <span style="font-size:0.78rem;color:${d.availableToday ? '#087a5e' : '#b45309'};font-weight:700;">${d.availableToday ? '✅ Today' : '⚠️ Not today'}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.selectDoctor = function(id) {
+    const sel = document.querySelector('#bk_doctor');
+    sel.value = id;
+    const doc = _allDoctors.find(d => d._id === id);
+    showDoctorInfo(doc);
+  };
+
+  async function loadDoctors() {
+    const city = document.querySelector('#bk_city').value;
+    const state = document.querySelector('#bk_state').value;
+    const spec = document.querySelector('#bk_spec').value;
+    const sel = document.querySelector('#bk_doctor');
+    sel.innerHTML = '<option value="">Loading doctors…</option>';
+    document.querySelector('#doctorCardsList').innerHTML = '';
+    document.querySelector('#doctorInfoCard').style.display = 'none';
+    try {
+      const params = new URLSearchParams();
+      if (city) params.set('city', city);
+      if (state) params.set('state', state);
+      if (spec) params.set('specialization', spec);
+      // Public endpoint — no auth needed for browsing
+      const res = await fetch(`${SL.API_BASE}/api/doctors?${params.toString()}`);
+      const data = await res.json();
+      _allDoctors = data.doctors || [];
+      if (!_allDoctors.length) {
+        sel.innerHTML = '<option value="">No doctors found for this filter</option>';
+        document.querySelector('#doctorCardsList').innerHTML =
+          '<div class="empty-box"><div class="icon">🔍</div><p>No doctors match the filter. Try a different city or specialization.</p></div>';
+        return;
+      }
+      sel.innerHTML = '<option value="">-- Select a doctor --</option>' +
+        _allDoctors.map(d => `<option value="${d._id}">${d.displayName} – ${d.speciality} – ₹${d.consultationFee}</option>`).join('');
+      renderDoctorCards(_allDoctors);
+    } catch {
+      sel.innerHTML = '<option value="">Could not load doctors</option>';
+    }
+  }
+
+  // ── Booking form ──
+  document.querySelector('#bookingForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const err = document.querySelector('#bookingError');
+    err.style.display = 'none';
+    const btn = document.querySelector('#bookBtn');
+    btn.textContent = 'Booking…';
+    btn.disabled = true;
+
+    const doctorId = document.querySelector('#bk_doctor').value;
+    const dateVal = document.querySelector('#bk_date').value;
+    const timeVal = document.querySelector('#bk_time').value;
+    const symptoms = document.querySelector('#bk_symptoms').value;
+
+    if (!doctorId) { err.textContent = 'Please select a doctor.'; err.style.display = 'block'; btn.textContent = 'Book Appointment'; btn.disabled = false; return; }
+
+    try {
+      const res = await SL.authFetch('/api/appointments/book', {
+        method: 'POST',
+        body: JSON.stringify({ doctorId, scheduledAt: `${dateVal}T${timeVal}:00`, symptoms })
+      });
+      if (!res) return;
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Booking failed.');
+
+      document.querySelector('#conf-token').textContent = `#${data.queue?.tokenNumber || '–'}`;
+      document.querySelector('#conf-position').textContent = data.queue?.position ?? data.queue?.tokenNumber ?? '–';
+      document.querySelector('#conf-wait').textContent = data.queue?.estimatedWaitMinutes ?? '–';
+      document.querySelector('#bookingConfirm').style.display = 'block';
+      document.querySelector('#bookingForm').reset();
+      toast('Appointment booked successfully!', 'success');
+      loadOverview();
+    } catch (ex) {
+      err.textContent = ex.message;
+      err.style.display = 'block';
+    } finally {
+      btn.textContent = 'Book Appointment';
+      btn.disabled = false;
+    }
+  });
+
+  // ── Overview data ──
+  async function loadOverview() {
+    try {
+      const res = await SL.authFetch('/api/appointments/my');
+      if (!res) return;
+      const data = await res.json();
+      const appts = data.appointments || data || [];
+      document.querySelector('#stat-total').textContent = appts.length;
+      document.querySelector('#stat-upcoming').textContent = appts.filter(a => a.status === 'confirmed').length;
+    } catch {}
+
+    try {
+      const res = await SL.authFetch('/api/queue/my-token');
+      if (!res) return;
+      const data = await res.json();
+      const q = data.queue;
+      if (q) {
+        document.querySelector('#stat-token').textContent = `#${q.tokenNumber}`;
+        document.querySelector('#stat-wait').textContent = q.estimatedWaitMinutes ?? '–';
+        document.querySelector('#liveToken').textContent = `#${q.tokenNumber}`;
+        document.querySelector('#liveCurrentToken').textContent = `#${q.currentToken || '–'}`;
+        document.querySelector('#liveWait').textContent = q.estimatedWaitMinutes ?? '–';
+        document.querySelector('#liveStatusPill').textContent = q.status;
+        document.querySelector('#liveStatusPill').className = `status-pill pill-${q.status}`;
+        document.querySelector('#liveTokenCard').style.display = 'block';
+      }
+    } catch {}
+  }
+
+  // ── Appointments list ──
+  async function loadAppointments() {
+    const container = document.querySelector('#appointmentsList');
+    container.innerHTML = '<div class="empty-box"><div class="icon">⏳</div><p>Loading…</p></div>';
+    try {
+      const res = await SL.authFetch('/api/appointments/my');
+      if (!res) return;
+      const data = await res.json();
+      const appts = data.appointments || data || [];
+      if (!appts.length) { container.innerHTML = '<div class="empty-box"><div class="icon">📭</div><p>No appointments yet.</p></div>'; return; }
+      container.innerHTML = appts.map(a => `
+        <div class="queue-item ${a.status === 'cancelled' ? 'completed' : ''}">
+          <div class="token-badge ${a.status === 'confirmed' ? '' : 'grey'}">${a.status === 'confirmed' ? '✓' : '✗'}</div>
+          <div class="queue-item-info">
+            <strong>${a.doctor?.displayName || a.doctor?.name || 'Doctor'}</strong>
+            <span>${new Date(a.scheduledAt).toLocaleString()} · ${a.symptoms || '—'}</span>
+          </div>
+          <span class="status-pill pill-${a.status}">${a.status}</span>
+          ${a.status === 'confirmed' ? `<button class="btn btn-sm btn-danger" onclick="cancelAppt('${a._id}')">Cancel</button>` : ''}
+        </div>
+      `).join('');
+    } catch (ex) {
+      container.innerHTML = `<div class="empty-box"><div class="icon">⚠️</div><p>${ex.message}</p></div>`;
+    }
+  }
+
+  async function cancelAppt(id) {
+    if (!confirm('Cancel this appointment?')) return;
+    try {
+      const res = await SL.authFetch(`/api/appointments/${id}/cancel`, { method: 'PUT' });
+      if (!res) return;
+      if (!res.ok) { const d = await res.json(); throw new Error(d.message); }
+      toast('Appointment cancelled.'); loadAppointments();
+    } catch (ex) { toast(ex.message, 'error'); }
+  }
+
+  // ── Queue status ──
+  async function loadQueueStatus() {
+    const box = document.querySelector('#queueStatusBox');
+    try {
+      const res = await SL.authFetch('/api/queue/my-token');
+      if (!res) return;
+      const data = await res.json();
+      const q = data.queue;
+      if (!q) { box.innerHTML = '<div class="empty-box"><div class="icon">🎫</div><p>No active queue token. Book an appointment first.</p></div>'; return; }
+      box.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;">
+          <div class="stat-card"><div class="stat-val">#${q.tokenNumber}</div><div class="stat-label">Your Token</div></div>
+          <div class="stat-card"><div class="stat-val">${q.estimatedWaitMinutes ?? '–'}</div><div class="stat-label">Est. Wait (min)</div></div>
+          <div class="stat-card"><div class="stat-val"><span class="status-pill pill-${q.status}">${q.status}</span></div><div class="stat-label">Status</div></div>
+        </div>
+        <p style="color:var(--muted);font-size:0.85rem;">Queue updates in real time via socket. Refresh if needed.</p>
+      `;
+    } catch (ex) { box.innerHTML = `<div class="empty-box"><div class="icon">⚠️</div><p>${ex.message}</p></div>`; }
+  }
+
+  // ── Notifications ──
+  async function loadNotifications() {
+    const list = document.querySelector('#notificationsList');
+    list.innerHTML = '<div class="empty-box"><div class="icon">⏳</div><p>Loading…</p></div>';
+    try {
+      const res = await SL.authFetch('/api/notifications');
+      if (!res) return;
+      const data = await res.json();
+      const notifs = data.notifications || data || [];
+      const badge = document.querySelector('#notifBadge');
+      const unread = notifs.filter(n => !n.isRead).length;
+      badge.textContent = unread;
+      badge.style.display = unread ? 'inline' : 'none';
+      if (!notifs.length) { list.innerHTML = '<div class="empty-box"><div class="icon">🔔</div><p>No notifications.</p></div>'; return; }
+      list.innerHTML = notifs.map(n => `
+        <div class="notif-item ${n.isRead ? '' : 'unread'}" data-id="${n._id}">
+          <div class="notif-dot"></div>
+          <div class="notif-body">
+            <strong>${n.title}</strong>
+            <span>${n.message}</span>
+          </div>
+          ${!n.isRead ? `<button class="btn btn-sm btn-secondary" onclick="markRead('${n._id}')">Mark read</button>` : ''}
+        </div>
+      `).join('');
+    } catch (ex) { list.innerHTML = `<div class="empty-box"><div class="icon">⚠️</div><p>${ex.message}</p></div>`; }
+  }
+
+  async function markRead(id) {
+    await SL.authFetch(`/api/notifications/${id}/read`, { method: 'PUT' });
+    loadNotifications();
+  }
+
+  document.querySelector('#markAllReadBtn').addEventListener('click', async () => {
+    const res = await SL.authFetch('/api/notifications');
+    if (!res) return;
+    const data = await res.json();
+    const notifs = data.notifications || data || [];
+    await Promise.all(notifs.filter(n => !n.isRead).map(n => SL.authFetch(`/api/notifications/${n._id}/read`, { method: 'PUT' })));
+    loadNotifications();
+  });
+
+  // ── Socket.io ──
+  const socket = io(SL.API_BASE, { auth: { token: SL.getToken() }, transports: ['websocket', 'polling'] });
+
+  socket.on('connect', () => {
+    const q = SL.getUser();
+    if (q) socket.emit('joinQueue', q.id || q._id);
+  });
+
+  socket.on('queueUpdated', (data) => {
+    toast(`Queue updated: now serving #${data.currentToken || '–'}`);
+    loadOverview();
+    loadQueueStatus();
+  });
+
+  socket.on('tokenCalled', (data) => {
+    toast(`🔔 Token #${data.tokenNumber} is called! Please proceed to the doctor.`, 'success');
+    loadOverview();
+  });
+
+  socket.on('emergencyDelay', (data) => {
+    const banner = document.querySelector('#alertBanner');
+    banner.style.display = 'block';
+    banner.style.background = 'rgba(245,158,11,0.1)';
+    banner.style.borderLeft = '4px solid #f59e0b';
+    banner.style.padding = '14px 18px';
+    banner.style.borderRadius = '12px';
+    document.querySelector('#alertBannerMsg').textContent =
+      `⚠️ Emergency delay: ${data.delayMinutes} minutes added. Reason: ${data.reason || 'Emergency case'}`;
+    toast(`Emergency delay: +${data.delayMinutes} min`, 'error');
+    loadOverview();
+  });
+
+  socket.on('notificationCreated', (data) => {
+    toast(`🔔 ${data.title || 'New notification'}`);
+    loadNotifications();
+  });
+
+  // ── Init ──
+  loadOverview();
+  loadDoctors();
+</script>
+<script src="auth.js"></script>
+<script src="chatbot.js"></script>
+</body>
+</html>

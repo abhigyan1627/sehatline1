@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SehatLine – Doctor Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+
+<div class="dash-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="dash-sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <span class="logo-mark" style="background:var(--primary);color:white;border-radius:10px;width:30px;height:30px;display:grid;place-items:center;font-weight:900;">S</span>
+      SehatLine
+    </a>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" data-section="today" href="#">
+        <span class="icon">🏠</span> Today
+      </a>
+      <a class="nav-item" data-section="queue" href="#">
+        <span class="icon">🔢</span> Live Queue
+      </a>
+      <a class="nav-item" data-section="appointments" href="#">
+        <span class="icon">📋</span> All Appointments
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="avatar" id="sidebarAvatar">D</div>
+        <div class="user-chip-info">
+          <strong id="sidebarName">Loading…</strong>
+          <span>Doctor</span>
+        </div>
+      </div>
+      <button class="nav-item" style="margin-top:8px;color:#dc2626;" onclick="SL.logout()">
+        <span class="icon">🚪</span> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="dash-main">
+    <header class="dash-header">
+      <h1 id="sectionTitle">Today</h1>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span id="headerUserName" style="font-weight:700;color:var(--muted);font-size:0.9rem;"></span>
+        <button class="btn btn-sm btn-danger" onclick="SL.logout()">Logout</button>
+      </div>
+    </header>
+
+    <div class="dash-content">
+
+      <!-- ── Today / Overview ── -->
+      <section id="sec-today">
+
+        <div class="stats-grid" style="margin-bottom:24px;" id="statsRow">
+          <div class="stat-card"><div class="stat-val" id="stat-total">–</div><div class="stat-label">Total Tokens Today</div></div>
+          <div class="stat-card"><div class="stat-val" id="stat-waiting">–</div><div class="stat-label">Waiting</div></div>
+          <div class="stat-card"><div class="stat-val" id="stat-completed">–</div><div class="stat-label">Completed</div></div>
+          <div class="stat-card"><div class="stat-val" id="stat-current">–</div><div class="stat-label">Current Token</div></div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="dash-card" style="margin-bottom:20px;">
+          <h2>Quick Actions</h2>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="btn btn-primary" id="callNextBtn" onclick="callNext()">📢 Call Next Patient</button>
+            <button class="btn btn-success" id="startBtn" onclick="startConsultation()" disabled>▶ Start Consultation</button>
+            <button class="btn btn-secondary" id="completeBtn" onclick="completeConsultation()" disabled>✅ Complete</button>
+            <button class="btn btn-danger" onclick="openDelayModal()">⚠️ Emergency Delay</button>
+          </div>
+        </div>
+
+        <!-- Current patient info -->
+        <div class="dash-card" id="currentPatientCard" style="display:none;margin-bottom:20px;border:2px solid var(--secondary);">
+          <h2>🩺 Current Patient</h2>
+          <div id="currentPatientInfo"></div>
+        </div>
+
+        <!-- Today's queue list -->
+        <div class="dash-card">
+          <h2>Today's Queue</h2>
+          <div id="todayQueueList" class="queue-list">
+            <div class="empty-box"><div class="icon">⏳</div><p>Loading today's queue…</p></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── Live Queue ── -->
+      <section id="sec-queue" style="display:none;">
+        <div class="dash-card">
+          <h2>🔢 Live Queue</h2>
+          <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+            <button class="btn btn-primary btn-sm" onclick="callNext()">📢 Call Next</button>
+            <button class="btn btn-success btn-sm" onclick="startConsultation()">▶ Start</button>
+            <button class="btn btn-secondary btn-sm" onclick="completeConsultation()">✅ Complete</button>
+          </div>
+          <div id="liveQueueList" class="queue-list">
+            <div class="empty-box"><div class="icon">⏳</div><p>Loading…</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── All Appointments ── -->
+      <section id="sec-appointments" style="display:none;">
+        <div class="dash-card">
+          <h2>📋 All Appointments</h2>
+          <div id="allApptList" class="queue-list">
+            <div class="empty-box"><div class="icon">⏳</div><p>Loading…</p></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- Emergency delay modal -->
+<div class="modal-backdrop" id="delayModal">
+  <div class="modal-box">
+    <button class="modal-close-btn" onclick="closeDelayModal()">×</button>
+    <h2>⚠️ Emergency Delay</h2>
+    <p>Add delay to all waiting patients and send notifications.</p>
+    <form id="delayForm" class="form-grid" style="grid-template-columns:1fr;">
+      <div class="form-field">
+        <label for="delayMinutes">Delay (minutes)</label>
+        <input id="delayMinutes" type="number" min="1" max="120" value="30" required />
+      </div>
+      <div class="form-field">
+        <label for="delayReason">Reason</label>
+        <input id="delayReason" type="text" placeholder="Emergency case…" required />
+      </div>
+      <div id="delayError" class="form-error" style="display:none;"></div>
+      <button class="btn btn-danger btn-full" type="submit" id="delaySubmitBtn">Apply Delay</button>
+    </form>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="auth.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+  // ── Auth guard ──
+  const user = SL.requireAuth(['doctor']);
+  if (!user) throw new Error('Redirecting');
+
+  document.querySelector('#sidebarName').textContent = user.name;
+  document.querySelector('#sidebarAvatar').textContent = user.name[0].toUpperCase();
+  document.querySelector('#headerUserName').textContent = user.name;
+
+  let currentQueueItem = null;
+  let doctorProfile = null;
+
+  // ── Toast ──
+  const toast = (msg, type = '') => {
+    const c = document.querySelector('#toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 4500);
+  };
+
+  // ── Section navigation ──
+  const showSection = (name) => {
+    ['today','queue','appointments'].forEach(s => {
+      document.querySelector(`#sec-${s}`).style.display = s === name ? '' : 'none';
+    });
+    document.querySelector('#sectionTitle').textContent = name.charAt(0).toUpperCase() + name.slice(1);
+    document.querySelectorAll('.nav-item[data-section]').forEach(el =>
+      el.classList.toggle('active', el.dataset.section === name));
+    if (name === 'queue') loadLiveQueue();
+    if (name === 'appointments') loadAllAppts();
+  };
+
+  document.querySelectorAll('.nav-item[data-section]').forEach(el =>
+    el.addEventListener('click', (e) => { e.preventDefault(); showSection(el.dataset.section); }));
+
+  // ── Load today ──
+  async function loadToday() {
+    try {
+      const res = await SL.authFetch('/api/doctor-dashboard/today');
+      if (!res) return;
+      const data = await res.json();
+      doctorProfile = data.doctor;
+      const queue = data.queue || [];
+
+      document.querySelector('#stat-total').textContent = queue.length;
+      document.querySelector('#stat-waiting').textContent = queue.filter(q => q.status === 'waiting').length;
+      document.querySelector('#stat-completed').textContent = queue.filter(q => q.status === 'completed').length;
+
+      const inConsult = queue.find(q => q.status === 'in_consultation');
+      const called = queue.find(q => q.status === 'called');
+      currentQueueItem = inConsult || called || null;
+
+      document.querySelector('#stat-current').textContent = currentQueueItem ? `#${currentQueueItem.tokenNumber}` : '–';
+
+      document.querySelector('#startBtn').disabled = !called;
+      document.querySelector('#completeBtn').disabled = !inConsult;
+
+      if (currentQueueItem) {
+        const card = document.querySelector('#currentPatientCard');
+        card.style.display = 'block';
+        document.querySelector('#currentPatientInfo').innerHTML = `
+          <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+            <div class="token-badge green">#${currentQueueItem.tokenNumber}</div>
+            <div>
+              <strong>${currentQueueItem.patient?.name || 'Patient'}</strong><br/>
+              <span style="color:var(--muted);font-size:0.82rem;">${currentQueueItem.appointment?.symptoms || '—'}</span>
+            </div>
+            <span class="status-pill pill-${currentQueueItem.status}">${currentQueueItem.status}</span>
+          </div>
+        `;
+      } else {
+        document.querySelector('#currentPatientCard').style.display = 'none';
+      }
+
+      const list = document.querySelector('#todayQueueList');
+      if (!queue.length) { list.innerHTML = '<div class="empty-box"><div class="icon">📭</div><p>No appointments today.</p></div>'; return; }
+      list.innerHTML = queue.map(q => `
+        <div class="queue-item ${q.status === 'in_consultation' ? 'in-consultation' : ''} ${q.status === 'called' ? 'active-token' : ''} ${q.status === 'completed' ? 'completed' : ''}">
+          <div class="token-badge ${q.status === 'completed' ? 'grey' : q.status === 'in_consultation' ? 'green' : ''}">#${q.tokenNumber}</div>
+          <div class="queue-item-info">
+            <strong>${q.patient?.name || 'Patient'}</strong>
+            <span>${q.appointment?.symptoms || '—'} · Est. wait: ${q.estimatedWaitMinutes ?? '–'} min</span>
+          </div>
+          <span class="status-pill pill-${q.status}">${q.status}</span>
+          ${q.status === 'waiting' ? `<button class="btn btn-sm btn-secondary" onclick="callSpecific('${q._id}')">Call</button>` : ''}
+        </div>
+      `).join('');
+    } catch (ex) { toast(ex.message, 'error'); }
+  }
+
+  async function loadLiveQueue() {
+    if (!doctorProfile) { await loadToday(); }
+    document.querySelector('#liveQueueList').innerHTML = document.querySelector('#todayQueueList').innerHTML;
+  }
+
+  async function loadAllAppts() {
+    const list = document.querySelector('#allApptList');
+    list.innerHTML = '<div class="empty-box"><div class="icon">⏳</div><p>Loading…</p></div>';
+    try {
+      const res = await SL.authFetch('/api/doctor-dashboard/today');
+      if (!res) return;
+      const data = await res.json();
+      const queue = data.queue || [];
+      list.innerHTML = queue.length ? queue.map(q => `
+        <div class="queue-item ${q.status === 'completed' ? 'completed' : ''}">
+          <div class="token-badge ${q.status === 'completed' ? 'grey' : ''}">#${q.tokenNumber}</div>
+          <div class="queue-item-info">
+            <strong>${q.patient?.name || 'Patient'}</strong>
+            <span>${new Date(q.appointment?.scheduledAt || Date.now()).toLocaleTimeString()} · ${q.appointment?.symptoms || '—'}</span>
+          </div>
+          <span class="status-pill pill-${q.status}">${q.status}</span>
+        </div>
+      `).join('') : '<div class="empty-box"><div class="icon">📭</div><p>No appointments.</p></div>';
+    } catch (ex) { list.innerHTML = `<div class="empty-box"><div class="icon">⚠️</div><p>${ex.message}</p></div>`; }
+  }
+
+  // ── Queue actions ──
+  async function callNext() {
+    document.querySelector('#callNextBtn').disabled = true;
+    try {
+      const res = await SL.authFetch('/api/doctor-dashboard/call-next', { method: 'POST' });
+      if (!res) return;
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      toast(`Called token #${data.queue?.tokenNumber}`, 'success');
+      loadToday();
+    } catch (ex) { toast(ex.message, 'error'); }
+    finally { document.querySelector('#callNextBtn').disabled = false; }
+  }
+
+  async function callSpecific(queueId) {
+    try {
+      const res = await SL.authFetch(`/api/queue/${queueId}/call`, { method: 'POST' });
+      if (!res) return;
+      if (!res.ok) { const d = await res.json(); throw new Error(d.message); }
+      toast('Token called.', 'success'); loadToday();
+    } catch (ex) { toast(ex.message, 'error'); }
+  }
+
+  async function startConsultation() {
+    if (!currentQueueItem) return;
+    try {
+      const res = await SL.authFetch(`/api/queue/${currentQueueItem._id}/start`, { method: 'POST' });
+      if (!res) return;
+      if (!res.ok) { const d = await res.json(); throw new Error(d.message); }
+      toast('Consultation started.', 'success'); loadToday();
+    } catch (ex) { toast(ex.message, 'error'); }
+  }
+
+  async function completeConsultation() {
+    try {
+      const res = await SL.authFetch('/api/doctor-dashboard/complete-current', { method: 'POST' });
+      if (!res) return;
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      toast('Consultation completed!', 'success'); loadToday();
+    } catch (ex) { toast(ex.message, 'error'); }
+  }
+
+  // ── Emergency delay modal ──
+  const openDelayModal = () => {
+    document.querySelector('#delayModal').classList.add('active');
+    document.querySelector('#delayError').style.display = 'none';
+  };
+  const closeDelayModal = () => document.querySelector('#delayModal').classList.remove('active');
+
+  document.querySelector('#delayModal').addEventListener('click', (e) => {
+    if (e.target === document.querySelector('#delayModal')) closeDelayModal();
+  });
+
+  document.querySelector('#delayForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const err = document.querySelector('#delayError');
+    const btn = document.querySelector('#delaySubmitBtn');
+    err.style.display = 'none';
+    btn.textContent = 'Applying…'; btn.disabled = true;
+    try {
+      const res = await SL.authFetch('/api/doctor-dashboard/emergency-delay', {
+        method: 'POST',
+        body: JSON.stringify({
+          delayMinutes: Number(document.querySelector('#delayMinutes').value),
+          reason: document.querySelector('#delayReason').value.trim()
+        })
+      });
+      if (!res) return;
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      toast(`Emergency delay of ${data.delayMinutes} min applied. Patients notified.`, 'success');
+      closeDelayModal();
+      loadToday();
+    } catch (ex) { err.textContent = ex.message; err.style.display = 'block'; }
+    finally { btn.textContent = 'Apply Delay'; btn.disabled = false; }
+  });
+
+  // ── Socket.io ──
+  const socket = io(SL.API_BASE, { auth: { token: SL.getToken() }, transports: ['websocket', 'polling'] });
+  socket.on('connect', () => {
+    if (doctorProfile) socket.emit('joinQueue', doctorProfile._id);
+  });
+  socket.on('queueUpdated', () => { toast('Queue updated.'); loadToday(); });
+  socket.on('consultationStarted', (d) => toast(`Consultation started: #${d.tokenNumber}`));
+  socket.on('consultationCompleted', (d) => { toast(`Token #${d.tokenNumber} completed.`, 'success'); loadToday(); });
+
+  // ── Init ──
+  loadToday();
+</script>
+</body>
+</html>

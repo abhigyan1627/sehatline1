@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SehatLine – Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+
+<div class="dash-layout">
+
+  <aside class="dash-sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <span class="logo-mark" style="background:var(--primary);color:white;border-radius:10px;width:30px;height:30px;display:grid;place-items:center;font-weight:900;">S</span>
+      SehatLine
+    </a>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" data-section="overview" href="#"><span class="icon">🏠</span> Overview</a>
+      <a class="nav-item" data-section="patients" href="#"><span class="icon">🧑‍⚕️</span> Patients</a>
+      <a class="nav-item" data-section="doctors" href="#"><span class="icon">👨‍⚕️</span> Doctors</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="avatar" id="sidebarAvatar">A</div>
+        <div class="user-chip-info">
+          <strong id="sidebarName">Loading…</strong>
+          <span>Admin</span>
+        </div>
+      </div>
+      <button class="nav-item" style="margin-top:8px;color:#dc2626;" onclick="SL.logout()">
+        <span class="icon">🚪</span> Logout
+      </button>
+    </div>
+  </aside>
+
+  <div class="dash-main">
+    <header class="dash-header">
+      <h1>Admin Dashboard</h1>
+      <button class="btn btn-sm btn-danger" onclick="SL.logout()">Logout</button>
+    </header>
+
+    <div class="dash-content">
+
+      <section id="sec-overview">
+        <p id="welcomeMsg" style="font-size:1.1rem;font-weight:800;margin-bottom:20px;"></p>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-val" style="color:var(--primary);">🏥</div>
+            <div class="stat-label">SehatLine Platform</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val">4</div>
+            <div class="stat-label">Demo Users</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val">1</div>
+            <div class="stat-label">Demo Doctor</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val">∞</div>
+            <div class="stat-label">Possibilities</div>
+          </div>
+        </div>
+
+        <div class="dash-card" style="margin-top:24px;">
+          <h2>🔐 Admin Access</h2>
+          <p style="color:var(--muted);margin-bottom:16px;">You have full access to all dashboards as admin.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <a href="patient-dashboard.html" class="btn btn-secondary">Patient Dashboard</a>
+            <a href="doctor-dashboard.html" class="btn btn-secondary">Doctor Dashboard</a>
+            <a href="receptionist-dashboard.html" class="btn btn-secondary">Receptionist Dashboard</a>
+          </div>
+        </div>
+
+        <div class="dash-card" style="margin-top:16px;">
+          <h2>📡 API Health Check</h2>
+          <button class="btn btn-primary" onclick="checkHealth()">Check Backend</button>
+          <div id="healthResult" style="margin-top:12px;font-weight:700;"></div>
+        </div>
+      </section>
+
+      <section id="sec-patients" style="display:none;">
+        <div class="dash-card">
+          <h2>🧑‍⚕️ Patients (Demo)</h2>
+          <div class="queue-item">
+            <div class="token-badge">P</div>
+            <div class="queue-item-info">
+              <strong>Demo Patient</strong>
+              <span>patient@demo.com · Role: patient</span>
+            </div>
+            <span class="status-pill pill-waiting">active</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="sec-doctors" style="display:none;">
+        <div class="dash-card">
+          <h2>👨‍⚕️ Doctors (Demo)</h2>
+          <div class="queue-item">
+            <div class="token-badge green">D</div>
+            <div class="queue-item-info">
+              <strong>Dr. Demo Sharma</strong>
+              <span>doctor@demo.com · General Physician · SehatLine Demo Clinic</span>
+            </div>
+            <span class="status-pill pill-consulting">available</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="auth.js"></script>
+<script>
+  const user = SL.requireAuth(['admin']);
+  if (!user) throw new Error('Redirecting');
+
+  document.querySelector('#sidebarName').textContent = user.name;
+  document.querySelector('#sidebarAvatar').textContent = user.name[0].toUpperCase();
+  document.querySelector('#welcomeMsg').textContent = `Welcome, ${user.name} 👋 You have admin access.`;
+
+  const showSection = (name) => {
+    ['overview','patients','doctors'].forEach(s => {
+      document.querySelector(`#sec-${s}`).style.display = s === name ? '' : 'none';
+    });
+    document.querySelectorAll('.nav-item[data-section]').forEach(el =>
+      el.classList.toggle('active', el.dataset.section === name));
+  };
+
+  document.querySelectorAll('.nav-item[data-section]').forEach(el =>
+    el.addEventListener('click', (e) => { e.preventDefault(); showSection(el.dataset.section); }));
+
+  const toast = (msg, type = '') => {
+    const c = document.querySelector('#toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  };
+
+  async function checkHealth() {
+    const box = document.querySelector('#healthResult');
+    box.textContent = 'Checking…';
+    try {
+      const res = await fetch(`${SL.API_BASE}/api/health`);
+      const data = await res.json();
+      box.style.color = '#087a5e';
+      box.textContent = `✅ Backend OK – ${data.service}`;
+    } catch {
+      box.style.color = '#dc2626';
+      box.textContent = '❌ Backend unreachable. Is it running on port 5000?';
+    }
+  }
+</script>
+</body>
+</html>

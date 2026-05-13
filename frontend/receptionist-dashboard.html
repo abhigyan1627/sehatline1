@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SehatLine – Receptionist Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+
+<div class="dash-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="dash-sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <span class="logo-mark" style="background:var(--primary);color:white;border-radius:10px;width:30px;height:30px;display:grid;place-items:center;font-weight:900;">S</span>
+      SehatLine
+    </a>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" data-section="walkin" href="#"><span class="icon">🎫</span> Walk-in Token</a>
+      <a class="nav-item" data-section="livequeue" href="#"><span class="icon">🔢</span> Live Queue</a>
+      <a class="nav-item" data-section="reschedule" href="#"><span class="icon">🔄</span> Reschedule</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="avatar" id="sidebarAvatar">R</div>
+        <div class="user-chip-info">
+          <strong id="sidebarName">Loading…</strong>
+          <span>Receptionist</span>
+        </div>
+      </div>
+      <button class="nav-item" style="margin-top:8px;color:#dc2626;" onclick="SL.logout()">
+        <span class="icon">🚪</span> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="dash-main">
+    <header class="dash-header">
+      <h1 id="sectionTitle">Walk-in Token</h1>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span id="headerUserName" style="font-weight:700;color:var(--muted);font-size:0.9rem;"></span>
+        <button class="btn btn-sm btn-danger" onclick="SL.logout()">Logout</button>
+      </div>
+    </header>
+
+    <div class="dash-content">
+
+      <!-- ── Walk-in token ── -->
+      <section id="sec-walkin">
+        <div class="dash-card">
+          <h2>🎫 Generate Walk-in Token</h2>
+          <p style="color:var(--muted);margin-bottom:20px;">Create a queue token for a walk-in patient without prior appointment.</p>
+          <form id="walkinForm" class="form-grid">
+            <div class="form-field">
+              <label for="wk_patient">Patient Name</label>
+              <input id="wk_patient" type="text" placeholder="Full name" required />
+            </div>
+            <div class="form-field">
+              <label for="wk_phone">Phone</label>
+              <input id="wk_phone" type="tel" placeholder="+91 98765 43210" />
+            </div>
+            <div class="form-field">
+              <label for="wk_doctor">Doctor ID</label>
+              <input id="wk_doctor" type="text" placeholder="Doctor's ObjectId (from DB)" required />
+            </div>
+            <div class="form-field">
+              <label for="wk_symptoms">Symptoms</label>
+              <input id="wk_symptoms" type="text" placeholder="Brief description" />
+            </div>
+            <div id="walkinError" class="form-error" style="display:none;"></div>
+            <div class="form-full">
+              <button class="btn btn-primary" type="submit" id="walkinBtn">Generate Token</button>
+            </div>
+          </form>
+
+          <!-- Token result -->
+          <div id="walkinResult" style="display:none;margin-top:22px;padding:20px;border-radius:16px;background:rgba(53,201,159,0.1);border:2px solid var(--secondary);">
+            <h3 style="color:#087a5e;margin-bottom:12px;">✅ Walk-in Token Generated</h3>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+              <div class="stat-card"><div class="stat-val" id="wk-token">–</div><div class="stat-label">Token #</div></div>
+              <div class="stat-card"><div class="stat-val" id="wk-wait">–</div><div class="stat-label">Est. Wait (min)</div></div>
+              <div class="stat-card"><div class="stat-val" id="wk-pos">–</div><div class="stat-label">Queue Position</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Live queue ── -->
+      <section id="sec-livequeue" style="display:none;">
+        <div class="dash-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h2 style="margin:0;">🔢 Live Queue</h2>
+            <div style="display:flex;gap:10px;">
+              <input id="lq_doctorId" type="text" placeholder="Doctor ID" style="border:1.5px solid var(--border);border-radius:12px;padding:8px 12px;font-family:inherit;font-size:0.85rem;outline:none;" />
+              <button class="btn btn-sm btn-primary" onclick="loadLiveQueue()">Load</button>
+              <button class="btn btn-sm btn-secondary" onclick="loadLiveQueue()">↻ Refresh</button>
+            </div>
+          </div>
+          <div id="liveQueueList" class="queue-list">
+            <div class="empty-box"><div class="icon">🔢</div><p>Enter a doctor ID above and click Load.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Reschedule ── -->
+      <section id="sec-reschedule" style="display:none;">
+        <div class="dash-card">
+          <h2>🔄 Reschedule Appointment</h2>
+          <p style="color:var(--muted);margin-bottom:20px;">Enter the Queue ID and new appointment time to reschedule.</p>
+          <form id="rescheduleForm" class="form-grid" style="grid-template-columns:1fr;">
+            <div class="form-field">
+              <label for="rs_queueId">Queue ID</label>
+              <input id="rs_queueId" type="text" placeholder="Queue ObjectId" required />
+            </div>
+            <div class="form-field">
+              <label for="rs_date">New Date</label>
+              <input id="rs_date" type="date" required />
+            </div>
+            <div class="form-field">
+              <label for="rs_time">New Time</label>
+              <input id="rs_time" type="time" required />
+            </div>
+            <div id="rescheduleError" class="form-error" style="display:none;"></div>
+            <button class="btn btn-primary" type="submit" id="rescheduleBtn">Reschedule</button>
+          </form>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="auth.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+  // ── Auth guard ──
+  const user = SL.requireAuth(['receptionist', 'admin']);
+  if (!user) throw new Error('Redirecting');
+
+  document.querySelector('#sidebarName').textContent = user.name;
+  document.querySelector('#sidebarAvatar').textContent = user.name[0].toUpperCase();
+  document.querySelector('#headerUserName').textContent = user.name;
+
+  // ── Toast ──
+  const toast = (msg, type = '') => {
+    const c = document.querySelector('#toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  };
+
+  // ── Section navigation ──
+  const showSection = (name) => {
+    ['walkin','livequeue','reschedule'].forEach(s => {
+      document.querySelector(`#sec-${s}`).style.display = s === name ? '' : 'none';
+    });
+    const titles = { walkin: 'Walk-in Token', livequeue: 'Live Queue', reschedule: 'Reschedule' };
+    document.querySelector('#sectionTitle').textContent = titles[name] || name;
+    document.querySelectorAll('.nav-item[data-section]').forEach(el =>
+      el.classList.toggle('active', el.dataset.section === name));
+  };
+
+  document.querySelectorAll('.nav-item[data-section]').forEach(el =>
+    el.addEventListener('click', (e) => { e.preventDefault(); showSection(el.dataset.section); }));
+
+  // ── Walk-in token ──
+  document.querySelector('#walkinForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const err = document.querySelector('#walkinError');
+    const btn = document.querySelector('#walkinBtn');
+    err.style.display = 'none';
+    btn.textContent = 'Generating…'; btn.disabled = true;
+
+    try {
+      const res = await SL.authFetch('/api/receptionist/walkin-token', {
+        method: 'POST',
+        body: JSON.stringify({
+          patientName: document.querySelector('#wk_patient').value.trim(),
+          phone: document.querySelector('#wk_phone').value.trim(),
+          doctorId: document.querySelector('#wk_doctor').value.trim(),
+          symptoms: document.querySelector('#wk_symptoms').value.trim()
+        })
+      });
+      if (!res) return;
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to generate token.');
+
+      document.querySelector('#wk-token').textContent = `#${data.queue?.tokenNumber ?? '–'}`;
+      document.querySelector('#wk-wait').textContent = data.queue?.estimatedWaitMinutes ?? '–';
+      document.querySelector('#wk-pos').textContent = data.queue?.tokenNumber ?? '–';
+      document.querySelector('#walkinResult').style.display = 'block';
+      document.querySelector('#walkinForm').reset();
+      toast('Walk-in token generated!', 'success');
+    } catch (ex) { err.textContent = ex.message; err.style.display = 'block'; }
+    finally { btn.textContent = 'Generate Token'; btn.disabled = false; }
+  });
+
+  // ── Live queue ──
+  async function loadLiveQueue() {
+    const doctorId = document.querySelector('#lq_doctorId').value.trim();
+    const list = document.querySelector('#liveQueueList');
+    if (!doctorId) { toast('Please enter a Doctor ID.', 'error'); return; }
+    list.innerHTML = '<div class="empty-box"><div class="icon">⏳</div><p>Loading…</p></div>';
+
+    try {
+      const res = await SL.authFetch('/api/receptionist/live-queue' + (doctorId ? `?doctorId=${doctorId}` : ''));
+      if (!res) return;
+      const data = await res.json();
+      const queue = data.queue || data || [];
+      if (!queue.length) { list.innerHTML = '<div class="empty-box"><div class="icon">📭</div><p>Queue is empty.</p></div>'; return; }
+      list.innerHTML = queue.map(q => `
+        <div class="queue-item ${q.status === 'in_consultation' ? 'in-consultation' : ''} ${q.status === 'completed' ? 'completed' : ''}">
+          <div class="token-badge ${q.status === 'completed' ? 'grey' : q.status === 'in_consultation' ? 'green' : ''}">#${q.tokenNumber}</div>
+          <div class="queue-item-info">
+            <strong>${q.patient?.name || 'Patient'}</strong>
+            <span>${q.appointment?.symptoms || '—'} · Wait: ${q.estimatedWaitMinutes ?? '–'} min</span>
+          </div>
+          <span class="status-pill pill-${q.status}">${q.status}</span>
+          <div style="display:flex;gap:6px;">
+            ${q.status === 'waiting' ? `<button class="btn btn-sm btn-danger" onclick="cancelToken('${q._id}')">Cancel</button>` : ''}
+          </div>
+        </div>
+      `).join('');
+    } catch (ex) { list.innerHTML = `<div class="empty-box"><div class="icon">⚠️</div><p>${ex.message}</p></div>`; }
+  }
+
+  async function cancelToken(queueId) {
+    if (!confirm('Cancel this token?')) return;
+    try {
+      const res = await SL.authFetch(`/api/receptionist/queue/${queueId}/cancel`, { method: 'PUT' });
+      if (!res) return;
+      if (!res.ok) { const d = await res.json(); throw new Error(d.message); }
+      toast('Token cancelled.'); loadLiveQueue();
+    } catch (ex) { toast(ex.message, 'error'); }
+  }
+
+  // ── Reschedule ──
+  document.querySelector('#rescheduleForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const err = document.querySelector('#rescheduleError');
+    const btn = document.querySelector('#rescheduleBtn');
+    err.style.display = 'none';
+    btn.textContent = 'Rescheduling…'; btn.disabled = true;
+    try {
+      const queueId = document.querySelector('#rs_queueId').value.trim();
+      const date = document.querySelector('#rs_date').value;
+      const time = document.querySelector('#rs_time').value;
+      const res = await SL.authFetch(`/api/receptionist/queue/${queueId}/reschedule`, {
+        method: 'PUT',
+        body: JSON.stringify({ scheduledAt: `${date}T${time}:00` })
+      });
+      if (!res) return;
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      toast('Appointment rescheduled!', 'success');
+      document.querySelector('#rescheduleForm').reset();
+    } catch (ex) { err.textContent = ex.message; err.style.display = 'block'; }
+    finally { btn.textContent = 'Reschedule'; btn.disabled = false; }
+  });
+
+  // ── Socket.io ──
+  const socket = io(SL.API_BASE, { auth: { token: SL.getToken() }, transports: ['websocket','polling'] });
+  socket.on('queueUpdated', () => toast('Queue updated in real time.'));
+  socket.on('emergencyDelay', (d) => toast(`⚠️ Emergency delay: +${d.delayMinutes} min`, 'error'));
+
+  // ── Set min date ──
+  document.querySelector('#rs_date').min = new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>

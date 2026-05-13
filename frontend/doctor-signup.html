@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Join as Doctor — SehatLine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    body { background: var(--bg, #f0f4ff); min-height: 100vh; }
+    .signup-wrap { max-width: 720px; margin: 0 auto; padding: 40px 20px 80px; }
+    .signup-card { background: #fff; border-radius: 24px; padding: 40px 36px; box-shadow: 0 4px 32px rgba(15,111,255,0.08); }
+    .signup-card h1 { font-size: 1.6rem; margin-bottom: 4px; }
+    .signup-card .sub { color: #666; margin-bottom: 28px; font-size: 0.9rem; }
+    .form-section { font-size: 0.75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--primary, #0f6fff); margin: 24px 0 10px; border-bottom: 1px solid rgba(15,111,255,0.12); padding-bottom: 6px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } .signup-card { padding: 28px 18px; } }
+    .form-grid label { display: flex; flex-direction: column; gap: 4px; font-size: 0.82rem; font-weight: 600; color: #444; }
+    .form-grid label.full { grid-column: 1 / -1; }
+    .form-grid input, .form-grid select, .form-grid textarea {
+      padding: 10px 13px; border: 1.5px solid #e0e7ff; border-radius: 10px;
+      font-size: 0.9rem; font-family: inherit; transition: border .2s;
+      background: #f8faff; color: #111;
+    }
+    .form-grid input:focus, .form-grid select:focus, .form-grid textarea:focus { border-color: var(--primary, #0f6fff); outline: none; background: #fff; }
+    .days-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .days-grid label { flex-direction: row; align-items: center; gap: 6px; font-weight: 500; cursor: pointer; }
+    .days-grid input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary, #0f6fff); }
+    .submit-row { margin-top: 28px; display: flex; gap: 12px; align-items: center; }
+    .err-msg { display: none; margin-top: 12px; padding: 12px 16px; border-radius: 10px; background: rgba(192,57,43,0.08); color: #c0392b; font-size: 0.85rem; font-weight: 600; }
+    .success-box { display: none; margin-top: 20px; padding: 20px; border-radius: 14px; background: rgba(5,150,105,0.08); border: 1px solid rgba(5,150,105,0.2); color: #065f46; text-align: center; }
+    .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; text-decoration: none; }
+    .logo-mark { width: 36px; height: 36px; background: var(--primary,#0f6fff); color: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; }
+    .logo-row span:last-child { font-weight: 800; font-size: 1.25rem; color: #111; }
+  </style>
+</head>
+<body>
+<div class="signup-wrap">
+  <a class="logo-row" href="index.html">
+    <span class="logo-mark">S</span>
+    <span>SehatLine</span>
+  </a>
+
+  <div class="signup-card">
+    <h1>Join SehatLine as a Doctor</h1>
+    <p class="sub">Fill in your details to create your profile. Patients in your city will be able to find and book you immediately.</p>
+
+    <form id="doctorSignupForm" novalidate>
+
+      <div class="form-section">Personal Information</div>
+      <div class="form-grid">
+        <label class="full"><span>Full Name *</span><input type="text" name="name" required placeholder="Dr. Firstname Lastname" /></label>
+        <label><span>Email *</span><input type="email" name="email" required placeholder="doctor@example.com" /></label>
+        <label><span>Phone *</span><input type="tel" name="phone" required placeholder="+91 98765 43210" /></label>
+        <label><span>Password *</span><input type="password" name="password" required placeholder="Min 6 characters" minlength="6" /></label>
+      </div>
+
+      <div class="form-section">Speciality &amp; Qualifications</div>
+      <div class="form-grid">
+        <label><span>Specialization *</span>
+          <select name="specialization" required>
+            <option value="">Select specialization</option>
+            <option>General Physician</option>
+            <option>Dentist</option>
+            <option>Orthopedic</option>
+            <option>Cardiologist</option>
+            <option>Pediatrician</option>
+            <option>Gynecologist</option>
+            <option>Dermatologist</option>
+            <option>ENT</option>
+            <option>Eye Specialist</option>
+            <option>Neurologist</option>
+          </select>
+        </label>
+        <label><span>Qualification *</span><input type="text" name="qualification" required placeholder="MBBS, MD (Cardiology)" /></label>
+        <label><span>Experience (years) *</span><input type="number" name="experienceYears" required min="0" max="60" placeholder="8" /></label>
+        <label><span>Registration Number</span><input type="text" name="registrationNumber" placeholder="MCI/State Council No." /></label>
+        <label class="full"><span>About / Bio</span><textarea name="aboutDoctor" rows="3" placeholder="Brief about your practice and expertise..."></textarea></label>
+      </div>
+
+      <div class="form-section">Clinic &amp; Location</div>
+      <div class="form-grid">
+        <label><span>Clinic Name *</span><input type="text" name="clinicName" required placeholder="City Heart Clinic" /></label>
+        <label class="full"><span>Clinic Address *</span><input type="text" name="clinicAddress" required placeholder="Street, Area, City" /></label>
+        <label><span>State *</span>
+          <select name="state" id="signupState" required>
+            <option value="">Select state</option>
+            <option value="Bihar">Bihar</option>
+            <option value="Uttarakhand">Uttarakhand</option>
+            <option value="Gujarat">Gujarat</option>
+          </select>
+        </label>
+        <label><span>City *</span>
+          <select name="city" id="signupCity" required>
+            <option value="">Select city</option>
+          </select>
+        </label>
+        <label><span>Website</span><input type="url" name="website" placeholder="https://yourclinic.in" /></label>
+      </div>
+
+      <div class="form-section">Consultation Details</div>
+      <div class="form-grid">
+        <label><span>Consultation Fee (₹) *</span><input type="number" name="consultationFee" required min="0" placeholder="300" /></label>
+        <label><span>Avg. Consultation Time (min)</span><input type="number" name="averageConsultationTime" min="5" max="60" placeholder="10" /></label>
+        <label><span>Available From</span><input type="time" name="availableTimeStart" value="09:00" /></label>
+        <label><span>Available To</span><input type="time" name="availableTimeEnd" value="18:00" /></label>
+        <label class="full"><span>Available Days</span>
+          <div class="days-grid">
+            <label><input type="checkbox" name="availableDays" value="Mon" checked /> Mon</label>
+            <label><input type="checkbox" name="availableDays" value="Tue" checked /> Tue</label>
+            <label><input type="checkbox" name="availableDays" value="Wed" checked /> Wed</label>
+            <label><input type="checkbox" name="availableDays" value="Thu" checked /> Thu</label>
+            <label><input type="checkbox" name="availableDays" value="Fri" checked /> Fri</label>
+            <label><input type="checkbox" name="availableDays" value="Sat" checked /> Sat</label>
+            <label><input type="checkbox" name="availableDays" value="Sun" /> Sun</label>
+          </div>
+        </label>
+        <label><span>Emergency Available</span>
+          <select name="emergencyAvailable">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+          </select>
+        </label>
+        <label><span>Profile Image URL</span><input type="url" name="profileImageUrl" placeholder="https://example.com/photo.jpg" /></label>
+      </div>
+
+      <div id="signupError" class="err-msg"></div>
+
+      <div class="submit-row">
+        <button class="btn btn-primary" type="submit" id="signupSubmitBtn" style="min-width:160px;">Create Doctor Profile</button>
+        <a href="index.html" style="color:var(--muted,#888);font-size:0.85rem;">← Back to home</a>
+      </div>
+    </form>
+
+    <div class="success-box" id="signupSuccess">
+      <div style="font-size:2rem;margin-bottom:8px;">🎉</div>
+      <strong style="font-size:1.1rem;">Profile created successfully!</strong>
+      <p style="margin:8px 0 16px;font-size:0.9rem;">Your profile is live. Patients can now find and book you. Redirecting to your dashboard…</p>
+      <a class="btn btn-primary" href="doctor-dashboard.html">Go to Dashboard</a>
+    </div>
+  </div>
+</div>
+
+<script src="auth.js"></script>
+<script>
+  const API_BASE_URL = SL.API_BASE;
+  const STATE_CITIES = {
+    Bihar:       ['Patna', 'Gaya', 'Muzaffarpur', 'Siwan', 'Chhapra', 'Gopalganj'],
+    Uttarakhand: ['Dehradun', 'Haridwar', 'Haldwani', 'Rishikesh'],
+    Gujarat:     ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot']
+  };
+
+  const signupState  = document.querySelector('#signupState');
+  const signupCity   = document.querySelector('#signupCity');
+  const form         = document.querySelector('#doctorSignupForm');
+  const errMsg       = document.querySelector('#signupError');
+  const successBox   = document.querySelector('#signupSuccess');
+  const submitBtn    = document.querySelector('#signupSubmitBtn');
+
+  signupState.addEventListener('change', () => {
+    const cities = STATE_CITIES[signupState.value] || [];
+    signupCity.innerHTML = '<option value="">Select city</option>' +
+      cities.map((c) => `<option>${c}</option>`).join('');
+  });
+
+  /* If already logged in as doctor, go to dashboard */
+  const existingUser = SL.getUser();
+  if (existingUser && existingUser.role === 'doctor') {
+    window.location.href = 'doctor-dashboard.html';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errMsg.style.display = 'none';
+
+    const fd = new FormData(form);
+    const availableDays = [...form.querySelectorAll('input[name="availableDays"]:checked')].map((cb) => cb.value);
+
+    const body = {
+      role:                   'doctor',
+      name:                   fd.get('name'),
+      email:                  fd.get('email'),
+      phone:                  fd.get('phone'),
+      password:               fd.get('password'),
+      specialization:         fd.get('specialization'),
+      qualification:          fd.get('qualification'),
+      experienceYears:        Number(fd.get('experienceYears') || 0),
+      registrationNumber:     fd.get('registrationNumber') || '',
+      aboutDoctor:            fd.get('aboutDoctor') || '',
+      clinicName:             fd.get('clinicName'),
+      clinicAddress:          fd.get('clinicAddress'),
+      state:                  fd.get('state'),
+      city:                   fd.get('city'),
+      website:                fd.get('website') || '',
+      consultationFee:        Number(fd.get('consultationFee') || 0),
+      averageConsultationTime: Number(fd.get('averageConsultationTime') || 10),
+      availableTimeStart:     fd.get('availableTimeStart') || '09:00',
+      availableTimeEnd:       fd.get('availableTimeEnd') || '18:00',
+      availableDays,
+      emergencyAvailable:     fd.get('emergencyAvailable') === 'true',
+      profileImageUrl:        fd.get('profileImageUrl') || ''
+    };
+
+    /* Basic validation */
+    const required = ['name','email','password','specialization','qualification','clinicName','clinicAddress','state','city','consultationFee'];
+    const missing  = required.find((k) => !body[k]);
+    if (missing) {
+      errMsg.textContent = `Please fill in all required fields (missing: ${missing}).`;
+      errMsg.style.display = 'block';
+      return;
+    }
+
+    submitBtn.textContent = 'Creating profile...';
+    submitBtn.disabled = true;
+
+    try {
+      const res  = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || 'Registration failed');
+
+      SL.saveSession(data.token, data.user);
+      form.style.display = 'none';
+      successBox.style.display = 'block';
+      setTimeout(() => { window.location.href = 'doctor-dashboard.html'; }, 3000);
+    } catch (err) {
+      errMsg.textContent = err.message;
+      errMsg.style.display = 'block';
+    } finally {
+      submitBtn.textContent = 'Create Doctor Profile';
+      submitBtn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

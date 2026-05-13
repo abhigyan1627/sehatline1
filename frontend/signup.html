@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SehatLine – Create Account</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body class="auth-page">
+
+  <div class="auth-container">
+    <a href="index.html" class="auth-logo"><span class="logo-mark">S</span> SehatLine</a>
+
+    <div class="auth-card glass-card">
+      <h1>Create your account</h1>
+      <p class="auth-sub">Join SehatLine as a patient, doctor, or staff member.</p>
+
+      <!-- Role selector -->
+      <div class="role-selector" id="roleSelector">
+        <button class="role-btn active" data-role="patient">🧑‍⚕️ Patient</button>
+        <button class="role-btn" data-role="doctor">👨‍⚕️ Doctor</button>
+        <button class="role-btn" data-role="receptionist">🏥 Receptionist</button>
+        <button class="role-btn" data-role="admin">🔐 Admin</button>
+      </div>
+
+      <form id="signupForm" novalidate>
+        <input type="hidden" id="selectedRole" value="patient" />
+
+        <!-- Common fields -->
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="su_name">Full name</label>
+            <input id="su_name" type="text" placeholder="Abhigyan Kumar" required />
+          </div>
+          <div class="form-field">
+            <label for="su_email">Email address</label>
+            <input id="su_email" type="email" placeholder="you@email.com" required />
+          </div>
+          <div class="form-field">
+            <label for="su_phone">Phone number</label>
+            <input id="su_phone" type="tel" placeholder="+91 98765 43210" />
+          </div>
+          <div class="form-field">
+            <label for="su_password">Password</label>
+            <input id="su_password" type="password" placeholder="Min 6 characters" required minlength="6" />
+          </div>
+
+          <!-- Patient / Doctor / Receptionist: city + state -->
+          <div class="form-field role-field" data-roles="patient doctor receptionist">
+            <label for="su_state">State</label>
+            <select id="su_state">
+              <option value="">Select state</option>
+              <option>Bihar</option>
+              <option>Uttarakhand</option>
+              <option>Gujarat</option>
+            </select>
+          </div>
+          <div class="form-field role-field" data-roles="patient doctor receptionist">
+            <label for="su_city">City</label>
+            <select id="su_city">
+              <option value="">Select state first</option>
+            </select>
+          </div>
+
+          <!-- Doctor extra fields -->
+          <div class="form-field role-field" data-roles="doctor">
+            <label for="su_specialization">Specialization</label>
+            <input id="su_specialization" type="text" placeholder="Cardiology, Dentistry…" />
+          </div>
+          <div class="form-field role-field" data-roles="doctor">
+            <label for="su_experience">Years of experience</label>
+            <input id="su_experience" type="number" min="0" max="60" placeholder="10" />
+          </div>
+          <div class="form-field role-field" data-roles="doctor receptionist">
+            <label for="su_clinic">Clinic / Hospital name</label>
+            <input id="su_clinic" type="text" placeholder="SehatLine Clinic" />
+          </div>
+          <div class="form-field role-field" data-roles="doctor">
+            <label for="su_fee">Consultation fee (₹)</label>
+            <input id="su_fee" type="number" min="0" placeholder="499" />
+          </div>
+        </div>
+
+        <div id="signupError" class="form-error" style="display:none;"></div>
+        <button class="btn btn-primary btn-full" type="submit" id="signupSubmitBtn">Create Account</button>
+      </form>
+
+      <p class="auth-switch">Already have an account? <a href="#" id="goToLogin">Sign in</a></p>
+    </div>
+  </div>
+
+  <!-- Login modal for switch -->
+  <div class="modal-backdrop" id="loginModal" aria-hidden="true">
+    <div class="auth-card glass-card" style="position:relative;width:min(480px,100%);padding:28px;">
+      <button class="modal-close" id="loginModalClose" type="button">×</button>
+      <span class="tag">Sign in</span>
+      <h2 style="margin:10px 0 4px;">Welcome back</h2>
+      <p style="color:var(--muted);margin-bottom:18px;">Demo: patient@demo.com / 123456</p>
+      <form id="loginForm" class="form-grid" style="grid-template-columns:1fr;">
+        <div class="form-field">
+          <label for="li_email">Email</label>
+          <input id="li_email" type="email" required placeholder="patient@demo.com" />
+        </div>
+        <div class="form-field">
+          <label for="li_password">Password</label>
+          <input id="li_password" type="password" required placeholder="123456" />
+        </div>
+        <div id="loginError" class="form-error" style="display:none;"></div>
+        <button class="btn btn-primary btn-full" type="submit" id="loginSubmitBtn">Sign in</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script>
+    const CITIES = {
+      Bihar: ['Patna','Gaya','Muzaffarpur','Siwan','Chhapra','Gopalganj'],
+      Uttarakhand: ['Dehradun','Haridwar','Haldwani','Rishikesh'],
+      Gujarat: ['Ahmedabad','Surat','Vadodara','Rajkot']
+    };
+
+    const roleInput = document.querySelector('#selectedRole');
+    const roleButtons = document.querySelectorAll('.role-btn');
+    const roleFields = document.querySelectorAll('.role-field');
+    const suState = document.querySelector('#su_state');
+    const suCity = document.querySelector('#su_city');
+    const signupForm = document.querySelector('#signupForm');
+    const signupError = document.querySelector('#signupError');
+    const signupSubmitBtn = document.querySelector('#signupSubmitBtn');
+
+    const applyRole = (role) => {
+      roleInput.value = role;
+      roleButtons.forEach(b => b.classList.toggle('active', b.dataset.role === role));
+      roleFields.forEach(f => {
+        const roles = (f.dataset.roles || '').split(' ');
+        f.style.display = roles.includes(role) ? '' : 'none';
+      });
+    };
+
+    roleButtons.forEach(b => b.addEventListener('click', () => applyRole(b.dataset.role)));
+    applyRole('patient');
+
+    suState.addEventListener('change', () => {
+      const cities = CITIES[suState.value] || [];
+      suCity.innerHTML = cities.length
+        ? cities.map(c => `<option>${c}</option>`).join('')
+        : '<option value="">Select state first</option>';
+    });
+
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      signupError.style.display = 'none';
+      signupSubmitBtn.textContent = 'Creating account...';
+      signupSubmitBtn.disabled = true;
+
+      const role = roleInput.value;
+      const body = {
+        name: document.querySelector('#su_name').value.trim(),
+        email: document.querySelector('#su_email').value.trim(),
+        phone: document.querySelector('#su_phone').value.trim(),
+        password: document.querySelector('#su_password').value,
+        role,
+        city: suCity.value,
+        state: suState.value
+      };
+
+      if (role === 'doctor') {
+        body.specialization = document.querySelector('#su_specialization').value.trim();
+        body.experienceYears = Number(document.querySelector('#su_experience').value || 0);
+        body.clinicName = document.querySelector('#su_clinic').value.trim();
+        body.consultationFee = Number(document.querySelector('#su_fee').value || 0);
+      }
+      if (role === 'receptionist') {
+        body.clinicName = document.querySelector('#su_clinic').value.trim();
+      }
+
+      try {
+        const res = await fetch(`${SL.API_BASE}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Signup failed.');
+        SL.saveSession(data.token, data.user);
+        SL.redirectByRole(data.user.role);
+      } catch (err) {
+        signupError.textContent = err.message;
+        signupError.style.display = 'block';
+      } finally {
+        signupSubmitBtn.textContent = 'Create Account';
+        signupSubmitBtn.disabled = false;
+      }
+    });
+
+    // Login modal
+    const loginModal = document.querySelector('#loginModal');
+    const loginForm = document.querySelector('#loginForm');
+    const loginError = document.querySelector('#loginError');
+    const loginSubmitBtn = document.querySelector('#loginSubmitBtn');
+
+    document.querySelector('#goToLogin').addEventListener('click', (e) => {
+      e.preventDefault();
+      loginModal.classList.add('active');
+      loginModal.setAttribute('aria-hidden','false');
+    });
+    document.querySelector('#loginModalClose').addEventListener('click', () => {
+      loginModal.classList.remove('active');
+      loginModal.setAttribute('aria-hidden','true');
+    });
+    loginModal.addEventListener('click', (e) => { if (e.target === loginModal) { loginModal.classList.remove('active'); } });
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginError.style.display = 'none';
+      loginSubmitBtn.textContent = 'Signing in...';
+      loginSubmitBtn.disabled = true;
+      try {
+        const res = await fetch(`${SL.API_BASE}/api/auth/login`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: document.querySelector('#li_email').value.trim(), password: document.querySelector('#li_password').value })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Login failed.');
+        SL.saveSession(data.token, data.user);
+        SL.redirectByRole(data.user.role);
+      } catch (err) {
+        loginError.textContent = err.message;
+        loginError.style.display = 'block';
+      } finally {
+        loginSubmitBtn.textContent = 'Sign in';
+        loginSubmitBtn.disabled = false;
+      }
+    });
+
+    // Redirect if already logged in
+    if (SL.getUser()) SL.redirectByRole(SL.getUser().role);
+  </script>
+</body>
+</html>
