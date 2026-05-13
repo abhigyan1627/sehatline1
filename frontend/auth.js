@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5000';
+const API_BASE = 'https://sehatline-backend.onrender.com';
 
 const ROLE_DASHBOARD = {
   patient: 'patient-dashboard.html',

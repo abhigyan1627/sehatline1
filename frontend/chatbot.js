@@ -3,7 +3,7 @@
  * Rule-based, no paid AI API. MVP.
  */
 (() => {
-  const API_BASE = (window.SL && window.SL.API_BASE) || 'http://localhost:5000';
+  const API_BASE = (window.SL && window.SL.API_BASE) || 'https://sehatline-backend.onrender.com';
 
   const CITIES = {
     Bihar:       ['Patna', 'Gaya', 'Muzaffarpur', 'Siwan', 'Chhapra', 'Gopalganj'],
