@@ -40,6 +40,10 @@ app.use(cors({
 app.use(morgan('dev'));
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.json({ success: true, message: 'SehatLine backend running', service: 'sehatline-api' });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'SehatLine backend running', service: 'sehatline-api', port: process.env.PORT || 5000 });
 });
