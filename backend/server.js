@@ -29,13 +29,8 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 app.use(cors({
-  origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    return callback(new Error('Not allowed by CORS'));
-  }
+  origin: true,
+  credentials: true
 }));
 app.use(morgan('dev'));
 app.use(express.json());
