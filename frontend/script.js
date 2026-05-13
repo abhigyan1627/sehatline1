@@ -1,3 +1,4 @@
+console.log('SehatLine Frontend Loaded Successfully');
 const navToggle = document.querySelector('.nav-toggle');
 const navMenu = document.querySelector('.nav-menu');
 const navLinks = document.querySelectorAll('.nav-menu a');
