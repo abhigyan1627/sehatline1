@@ -20,6 +20,7 @@ const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT || 5000;
 const allowedOrigins = [
+  'https://sehatline1.vercel.app',
   process.env.FRONTEND_ORIGIN,
   'http://localhost:3000',
   'http://localhost:3001',
@@ -40,7 +41,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'sehatline-api' });
+  res.json({ success: true, message: 'SehatLine backend running', service: 'sehatline-api', port: process.env.PORT || 5000 });
 });
 
 app.use('/api/auth', authRoutes);
@@ -77,7 +78,11 @@ const startServer = async () => {
   });
 
   server.listen(port, () => {
-    console.log(`SehatLine API running on port ${port}`);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(`✅  SehatLine API running on port ${port}`);
+    console.log(`🌐  CORS allowed origins:`);
+    allowedOrigins.forEach((o) => console.log(`    • ${o}`));
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   });
 };
 
