@@ -6,7 +6,7 @@ const { createQueueForAppointment, emitIfAvailable } = require('../services/queu
 const bookAppointment = async (req, res, next) => {
   try {
     const doctorId = req.body.doctorId;
-    const scheduledAt = req.body.scheduledAt ? new Date(req.body.scheduledAt) : new Date(Date.now() + 60 * 60 * 1000);
+    const scheduledAt = req.body.scheduledAt ? new Date(req.body.scheduledAt) : new Date();
     const symptoms = String(req.body.symptoms || '').trim();
 
     const doctor = await Doctor.findById(doctorId);

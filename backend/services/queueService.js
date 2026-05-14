@@ -64,8 +64,10 @@ const createQueueForAppointment = async ({ req, appointment, doctorId, patientId
 
 const getDoctorTodayQueue = (doctorId) => Queue.find({
   doctor: doctorId,
-  queueDate: { $gte: startOfDay(), $lte: endOfDay() },
-  status: { $ne: 'cancelled' }
+  $or: [
+    { status: { $in: ['waiting', 'called', 'in_consultation'] } },
+    { queueDate: { $gte: startOfDay(), $lte: endOfDay() } }
+  ]
 })
   .sort({ tokenNumber: 1 })
   .populate('patient', 'name email phone role')
