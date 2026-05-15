@@ -1,8 +1,9 @@
 /**
  * chatbotService.js
- * Rule-based symptom → specialist mapping with emergency detection.
- * No paid AI API. No diagnosis claims. Recommend doctor always.
+ * GPT-4o powered health assistant with rule-based fallback.
+ * No diagnosis claims. Always recommends a doctor.
  */
+const https = require('https');
 const Doctor = require('../models/Doctor');
 
 /* ─── Emergency patterns ────────────────────────────────────────────── */
@@ -148,45 +149,129 @@ const fetchTopDoctors = async (city, speciality) => {
     .lean();
 };
 
+/* ─── OpenAI GPT-4o call ─────────────────────────────────────────────── */
+const SYSTEM_PROMPT = `You are SehatLine AI Health Assistant — a helpful, empathetic healthcare assistant for an Indian healthcare platform.
+Your job:
+1. Listen to the patient's symptoms or health concern.
+2. Suggest the most relevant medical specialist (e.g. Cardiologist, Dentist, General Physician, etc.).
+3. Give a brief, clear, friendly explanation in 2-3 sentences. Do NOT diagnose.
+4. Always end with a recommendation to consult a doctor.
+5. If the user writes in Hinglish or Hindi, respond in simple English.
+6. Keep replies concise (max 4 sentences).
+7. Return a JSON object with these fields:
+   - reply: string (your response to the patient)
+   - suggestedSpecialization: string (specialist name) or null
+   - urgency: "emergency" | "urgent" | "normal"
+Only return valid JSON. No markdown, no code blocks.`;
+
+const callOpenAI = (message, city) => new Promise((resolve, reject) => {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return reject(new Error('OPENAI_API_KEY not set'));
+
+  const userContent = city
+    ? `Patient location: ${city}\nPatient message: ${message}`
+    : `Patient message: ${message}`;
+
+  const body = JSON.stringify({
+    model: 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: userContent }
+    ],
+    temperature: 0.4,
+    max_tokens: 300
+  });
+
+  const options = {
+    hostname: 'api.openai.com',
+    path: '/v1/chat/completions',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Length': Buffer.byteLength(body)
+    }
+  };
+
+  const req = https.request(options, (res) => {
+    let data = '';
+    res.on('data', (chunk) => { data += chunk; });
+    res.on('end', () => {
+      try {
+        const parsed = JSON.parse(data);
+        if (parsed.error) return reject(new Error(parsed.error.message));
+        const content = parsed.choices?.[0]?.message?.content || '';
+        const result = JSON.parse(content);
+        resolve(result);
+      } catch (e) {
+        reject(new Error('Failed to parse OpenAI response'));
+      }
+    });
+  });
+
+  req.on('error', reject);
+  req.write(body);
+  req.end();
+});
+
 /* ─── Main function ─────────────────────────────────────────────────── */
 const processMessage = async ({ message, city }) => {
   const text = String(message || '').trim();
 
-  /* 1. Emergency check */
+  /* 1. Emergency check — always rule-based for safety */
   if (isEmergency(text)) {
     return {
-      reply: '🚨 This sounds like a medical emergency. Please call emergency services or go to the nearest hospital IMMEDIATELY. Do not wait.',
-      suggestedSpecialization: 'Cardiologist',
+      reply: '🚨 This sounds like a medical emergency. Please call emergency services (112) or go to the nearest hospital IMMEDIATELY. Do not wait.',
+      suggestedSpecialization: 'Emergency',
       urgency: 'emergency',
       doctors: [],
       quickReplies: []
     };
   }
 
-  /* 2. Detect speciality */
-  const match = detectSpeciality(text);
+  /* 2. Try OpenAI GPT-4o */
+  let aiReply = null;
+  let suggestedSpecialization = null;
+  let urgency = 'normal';
 
-  if (!match) {
-    return {
-      reply: "I'm not sure which specialist you need based on your message. Could you describe your symptoms in more detail? For example: fever, tooth pain, joint pain, skin rash, etc.",
-      suggestedSpecialization: null,
-      urgency: 'normal',
-      doctors: [],
-      quickReplies: ['Fever', 'Tooth Pain', 'Joint Pain', 'Skin Problem', 'Chest Pain', 'Child Health', 'Eye Problem', 'Women Health']
-    };
+  if (process.env.OPENAI_API_KEY) {
+    try {
+      const aiResult = await callOpenAI(text, city);
+      aiReply = aiResult.reply || null;
+      suggestedSpecialization = aiResult.suggestedSpecialization || null;
+      urgency = aiResult.urgency || 'normal';
+    } catch (err) {
+      console.error('OpenAI fallback to rule-based:', err.message);
+    }
   }
 
-  /* 3. Fetch doctors */
-  const doctors = await fetchTopDoctors(city, match.speciality);
+  /* 3. Rule-based fallback if OpenAI failed or key missing */
+  if (!aiReply) {
+    const match = detectSpeciality(text);
+    if (!match) {
+      return {
+        reply: "I'm not sure which specialist you need. Could you describe your symptoms in more detail? For example: fever, tooth pain, joint pain, skin rash, etc.",
+        suggestedSpecialization: null,
+        urgency: 'normal',
+        doctors: [],
+        quickReplies: ['Fever', 'Tooth Pain', 'Joint Pain', 'Skin Problem', 'Chest Pain', 'Child Health', 'Eye Problem', 'Women Health']
+      };
+    }
+    aiReply = match.reply;
+    suggestedSpecialization = match.speciality;
+  }
 
-  const cityNote = city
-    ? ` I've found doctors in ${city} for you below.`
-    : ' Tell me your city and I can suggest available doctors near you.';
+  /* 4. Fetch top doctors for suggested speciality */
+  const doctors = await fetchTopDoctors(city, suggestedSpecialization);
+
+  const cityNote = city && doctors.length
+    ? ` I've found available doctors in ${city} for you below.`
+    : !city ? ' Share your city and I can suggest nearby doctors.' : '';
 
   return {
-    reply: `${match.reply}${cityNote}\n\n⚠️ Disclaimer: This is basic guidance only. For emergencies or persistent symptoms, consult a doctor immediately.`,
-    suggestedSpecialization: match.speciality,
-    urgency: 'normal',
+    reply: `${aiReply}${cityNote}\n\n⚠️ Disclaimer: This is guidance only, not a medical diagnosis. Always consult a qualified doctor.`,
+    suggestedSpecialization,
+    urgency,
     doctors,
     quickReplies: []
   };
