@@ -1,0 +1,485 @@
+/*
+ * mobile.css — SehatLine Patient Mobile UI
+ * Only applies on screens ≤ 768px.
+ * Does NOT override desktop/laptop styles.
+ */
+
+@media (max-width: 768px) {
+
+  /* ── Base ── */
+  :root {
+    --radius-xl: 20px;
+    --radius-lg: 16px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+  }
+
+  /* ── Navbar mobile ── */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    background: rgba(10, 10, 20, 0.88);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .navbar {
+    padding: 14px 18px;
+  }
+
+  .logo {
+    font-size: 1.15rem;
+    gap: 8px;
+  }
+
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  /* ── Hero ── */
+  .hero.section-pad,
+  .hero {
+    padding: 56px 0 44px;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    text-align: center;
+  }
+
+  .hero-content {
+    order: 1;
+  }
+
+  .hero-visual {
+    order: 2;
+    margin: 0 auto;
+    max-width: 340px;
+  }
+
+  h1 {
+    font-size: clamp(2.2rem, 10vw, 3.2rem) !important;
+    line-height: 1.15;
+  }
+
+  .eyebrow {
+    justify-content: center;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 1rem;
+    border-radius: 14px;
+  }
+
+  .hero-stats {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .hero-stats strong {
+    font-size: 1.3rem;
+  }
+
+  .hero-stats span {
+    font-size: 0.72rem;
+  }
+
+  /* ── Doctor panel visual ── */
+  .doctor-panel {
+    min-height: 340px !important;
+    border-radius: 24px !important;
+  }
+
+  .hero-image {
+    height: 300px !important;
+    border-radius: 18px;
+  }
+
+  .live-card, .mini-card {
+    position: static !important;
+    margin-top: 10px !important;
+    padding: 10px 14px;
+  }
+
+  /* ── Search card ── */
+  .search-card {
+    padding: 22px 18px;
+    border-radius: 22px;
+  }
+
+  .search-form {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .search-form label span {
+    font-size: 0.78rem;
+  }
+
+  .search-form select,
+  .search-form input {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    border-radius: 12px;
+  }
+
+  .search-form .btn {
+    padding: 13px;
+    font-size: 0.95rem;
+    border-radius: 12px;
+  }
+
+  /* ── Feature cards ── */
+  .feature-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+  }
+
+  .feature-card {
+    padding: 22px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    border-radius: 18px !important;
+  }
+
+  .feature-card .icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+
+  .feature-card h3 {
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+
+  .feature-card p {
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  /* ── SmartQueue section ── */
+  .smartqueue-grid {
+    grid-template-columns: 1fr !important;
+    gap: 28px;
+  }
+
+  .live-token-card {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .token-metrics {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+  }
+
+  .token-metrics div {
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .token-metrics span {
+    font-size: 0.72rem;
+  }
+
+  .token-metrics strong {
+    font-size: 1.2rem;
+  }
+
+  .queue-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .queue-list span {
+    background: rgba(15,111,255,0.1);
+    border: 1px solid rgba(15,111,255,0.2);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  /* ── Doctor cards ── */
+  .doctor-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+
+  .doctor-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px !important;
+    border-radius: 18px !important;
+    flex-wrap: wrap;
+  }
+
+  .doctor-photo {
+    width: 72px !important;
+    height: 72px !important;
+    min-width: 72px;
+    border-radius: 50% !important;
+    font-size: 0.7rem;
+  }
+
+  .doctor-card h3 {
+    font-size: 1rem;
+    margin-bottom: 2px;
+  }
+
+  .doctor-card p {
+    font-size: 0.82rem;
+    margin: 0 0 6px;
+  }
+
+  .doctor-meta {
+    gap: 10px;
+    font-size: 0.8rem;
+  }
+
+  .doctor-card .btn {
+    width: 100%;
+    padding: 11px;
+    font-size: 0.88rem;
+    border-radius: 12px;
+    margin-top: 8px;
+  }
+
+  .badge {
+    font-size: 0.7rem;
+    padding: 4px 10px;
+  }
+
+  /* ── How it works steps ── */
+  .steps {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px;
+  }
+
+  .step {
+    padding: 20px 16px !important;
+    border-radius: 18px !important;
+    text-align: center;
+  }
+
+  .step span {
+    font-size: 1.6rem;
+  }
+
+  .step h3 {
+    font-size: 0.9rem;
+    margin-top: 8px;
+  }
+
+  /* ── Testimonials ── */
+  .testimonial-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+  }
+
+  .testimonial-card {
+    padding: 20px 18px;
+    border-radius: 18px !important;
+  }
+
+  .testimonial-card p {
+    font-size: 0.9rem;
+  }
+
+  /* ── Doctor filter section ── */
+  .doctor-filter-form {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px;
+  }
+
+  .doctor-filter-form label:last-child,
+  .doctor-filter-form button[type="submit"] {
+    grid-column: 1 / -1;
+  }
+
+  /* ── Clinic filter ── */
+  .clinic-filter-form {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px;
+  }
+
+  .clinic-filter-form label:nth-child(3),
+  .clinic-filter-form label:last-of-type,
+  .clinic-filter-form button {
+    grid-column: 1 / -1;
+  }
+
+  .clinic-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+  }
+
+  .clinic-card {
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  /* ── Booking modal ── */
+  .modal-backdrop {
+    align-items: flex-end !important;
+    padding: 0;
+  }
+
+  .modal-box {
+    border-radius: 24px 24px 0 0 !important;
+    padding: 28px 20px 40px !important;
+    max-height: 90vh;
+    overflow-y: auto;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .booking-form {
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+  }
+
+  .booking-form input,
+  .booking-form select,
+  .booking-form textarea {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    border-radius: 12px;
+  }
+
+  .booking-form .btn {
+    padding: 14px;
+    font-size: 1rem;
+    border-radius: 13px;
+  }
+
+  /* ── Footer ── */
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px;
+    text-align: center;
+  }
+
+  .footer-grid .socials {
+    justify-content: center;
+  }
+
+  .footer-grid a {
+    display: inline-block;
+    margin: 3px 0;
+  }
+
+  /* ── Section intros ── */
+  .section-intro h2 {
+    font-size: clamp(1.6rem, 7vw, 2.2rem);
+  }
+
+  .section-intro p {
+    font-size: 0.92rem;
+  }
+
+  /* ── Glass cards general ── */
+  .glass-card {
+    border-radius: 20px;
+  }
+
+  /* ── Buttons general ── */
+  .btn {
+    border-radius: 12px;
+  }
+
+  /* ── Login modal ── */
+  #loginModal .modal-box,
+  #signupModal .modal-box {
+    border-radius: 24px 24px 0 0 !important;
+    padding: 28px 20px 40px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* ── Chatbot button offset on mobile ── */
+  #chatbot-toggle {
+    bottom: 20px !important;
+    right: 16px !important;
+    width: 52px !important;
+    height: 52px !important;
+    font-size: 1.4rem !important;
+  }
+
+  #chatbot-window {
+    bottom: 84px !important;
+    right: 10px !important;
+    left: 10px !important;
+    width: auto !important;
+    max-height: 72vh !important;
+    border-radius: 20px !important;
+  }
+
+  /* ── PWA install banner ── */
+  #pwa-install-banner > div {
+    bottom: 72px !important;
+    border-radius: 16px !important;
+    font-size: 0.82rem !important;
+    padding: 10px 16px !important;
+    gap: 8px !important;
+  }
+
+  /* ── Join as doctor CTA ── */
+  .doctor-cta-card {
+    flex-direction: column !important;
+    text-align: center;
+    gap: 14px !important;
+  }
+
+  .doctor-cta-card .btn {
+    width: 100%;
+  }
+}
+
+/* ── Extra small (360px and below) ── */
+@media (max-width: 380px) {
+  h1 { font-size: 2rem !important; }
+
+  .hero-stats {
+    grid-template-columns: 1fr !important;
+    gap: 8px;
+  }
+
+  .steps {
+    grid-template-columns: 1fr !important;
+  }
+
+  .token-metrics {
+    grid-template-columns: 1fr !important;
+  }
+
+  .doctor-filter-form {
+    grid-template-columns: 1fr !important;
+  }
+}
