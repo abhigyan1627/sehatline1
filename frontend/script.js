@@ -589,3 +589,31 @@ fetchClinics();
 fetchDoctors();
 updateQueue();
 window.setInterval(updateQueue, 10000);
+
+/* ── PWA Install Prompt ── */
+let _deferredInstall = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  _deferredInstall = e;
+  const banner = document.createElement('div');
+  banner.id = 'pwa-install-banner';
+  banner.innerHTML = `
+    <div style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#0f6fff;color:#fff;padding:12px 24px;border-radius:14px;display:flex;align-items:center;gap:12px;z-index:9999;box-shadow:0 4px 24px rgba(15,111,255,0.4);font-family:Inter,sans-serif;font-size:0.9rem;max-width:90vw;">
+      <span>📲</span>
+      <span>Install SehatLine app on your device</span>
+      <button id="pwa-install-btn" style="background:white;color:#0f6fff;border:none;border-radius:8px;padding:6px 14px;font-weight:700;cursor:pointer;">Install</button>
+      <button id="pwa-dismiss-btn" style="background:transparent;color:rgba(255,255,255,0.7);border:none;font-size:1.2rem;cursor:pointer;line-height:1;">×</button>
+    </div>`;
+  document.body.appendChild(banner);
+  document.querySelector('#pwa-install-btn').addEventListener('click', () => {
+    _deferredInstall.prompt();
+    _deferredInstall.userChoice.then(() => { _deferredInstall = null; banner.remove(); });
+  });
+  document.querySelector('#pwa-dismiss-btn').addEventListener('click', () => banner.remove());
+});
+
+window.addEventListener('appinstalled', () => {
+  const b = document.querySelector('#pwa-install-banner');
+  if (b) b.remove();
+  console.log('SehatLine PWA installed');
+});
